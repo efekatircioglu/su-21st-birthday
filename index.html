@@ -1288,7 +1288,7 @@ const PAINTINGS=[
     paint(){ const gr=g.createLinearGradient(0,0,100,100); gr.addColorStop(0,'#e8c35a'); gr.addColorStop(1,'#b8902e'); g.fillStyle=gr; g.fillRect(0,0,100,100); const R=rng(3); for(let i=0;i<160;i++){ g.fillStyle=['#f6d870','#c9a23a','#8a6a1a','#fff3b0'][R()*4|0]; g.fillRect(R()*100,R()*100,2+R()*3,2+R()*3) }
       g.fillStyle='#3a2a10'; g.beginPath(); g.moveTo(30,100); g.quadraticCurveTo(26,40,46,22); g.quadraticCurveTo(70,20,72,48); g.quadraticCurveTo(78,80,70,100); g.fill(); for(let i=0;i<14;i++){ g.fillStyle=i%2?'#1a1a1a':'#f6efd8'; g.fillRect(36+((i*7)%30),40+((i*13)%50),5,9) } for(let i=0;i<10;i++){ g.fillStyle=['#ff5d8f','#7cc4ff','#9be15d'][i%3]; g.beginPath(); g.arc(56+((i*9)%18),60+((i*11)%30),3,0,TAU); g.fill() }
       g.fillStyle='#f2d2b0'; g.beginPath(); g.ellipse(52,28,7,9,-.4,0,TAU); g.fill(); g.beginPath(); g.ellipse(62,40,6,8,.5,0,TAU); g.fill(); g.fillStyle='#4a2c1f'; g.beginPath(); g.ellipse(50,22,8,6,-.4,0,TAU); g.fill(); g.fillStyle='#e8702a'; g.beginPath(); g.ellipse(66,40,4,9,.5,0,TAU); g.fill() },
-    async tap(){ if(!S.vi.water) return busyTalk([['su','Altın bir tablo... ama iki tane! Hatta üç! Hangisine dokunsam? Hık!'],['daphne','Önce kendine gel. Köşedeki su sebilinden bir bardak su iç.']]);
+    async tap(){ if(!S.vi.water) return busyTalk([['su','Altın bir tablo... ama iki tane! Hatta üç! Hangisine dokunsam? Başım dönüyor!'],['daphne','Önce kendine gel. Köşedeki su sebilinden bir bardak su iç.']]);
       if(!S.pieces.includes('viyana')){ await busyTalk([['narr','Altın Çift. Sarılmış iki kişi, etraflarında altın ışıltılar...'],['su','Bize benziyorlar mı sence?'],['narr','Çerçevenin arkasında bir şey parlıyor... takvim parçası!']]); return addPiece('viyana') }
       return busyTalk([['su','Altın Çift. Ne zaman baksam içim ısınıyor.']]) } },
   { id:'lady', plane:'y', r:[3.7,5.1,40,68], use:[4,1],
@@ -1309,7 +1309,7 @@ const PAINTINGS=[
     async tap(){ W.scare=1; Sfx.spooky(); Sfx.bad(); W.shake=.5; await busyTalk([['su','AAAA! Tablonun yüzü değişti! Kaptanın yüzü!'],['scooby','RUH-ROH! Reni rurdan çıkarın!'],['luka','(Luka, Su’nun bacaklarının arasına saklandı.)']]); W.scare=0 } },
 ];
 function viDizzy(){ if(S.area!=='viyana') return 0; if(!S.vi.water) return 1; return S.pieces.includes('viyana')?.3:.5 }
-function viUpdate(dt){ if(W.scare>0) W.scare=Math.max(0,W.scare-dt*.2); const d=viDizzy(); W.hic=(W.hic??4)-dt; if(W.hic<=0){ W.hic=6+Math.random()*5; if(!W.busy&&!dialogOpen&&d>.4){ toast('Hık!',900); Sfx.tone(640,.08,'triangle',.06,180) } } }
+function viUpdate(dt){ if(W.scare>0) W.scare=Math.max(0,W.scare-dt*.2); const d=viDizzy(); W.hic=(W.hic??4)-dt; if(W.hic<=0){ W.hic=6+Math.random()*5; if(!W.busy&&!dialogOpen&&d>.4){ toast(['Başım dönüyor...','Of, çok yorgunum...','Her şey dönüyor...'][Math.random()*3|0],1100); Sfx.tone(640,.08,'triangle',.06,180) } } }
 const tmpC=document.createElement('canvas'), tmpX=tmpC.getContext('2d');
 function mkArea(def){ const a=Object.assign({ents:[],dark:()=>false,sky:null,bg:'#0e0a24',anim:()=>{}},def); a.ox=a.H*HW+56; a.oy=(a.top||100); return a }
 const POOL=[[1,0],[2,0],[3,0],[4,0],[1,1],[2,1],[3,1],[4,1],[2,2],[3,2]];
