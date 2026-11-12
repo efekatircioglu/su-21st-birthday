@@ -1109,7 +1109,7 @@ function spawnShell(){ const f=[]; for(let x=0;x<11;x++) for(const y of [2,2,2,3
 function niceUpdate(dt){
   const N=S.nice; if(N.got){ W.wave={ph:'calm',front:2+Math.sin(W.t*1.4)*.08}; return }
   const Wv=W.wave&&W.wave.ph?W.wave:(W.wave={ph:'calm',t:0,next:2,front:2,reach:3.6}); if(Wv.t===undefined){ Wv.t=0; Wv.next=2 }
-  Wv.t+=dt; W.inv=Math.max(0,(W.inv||0)-dt); W.boots=Math.max(0,(W.boots||0)-dt);
+  Wv.t+=dt; W.boots=Math.max(0,(W.boots||0)-dt);
   if(!W.busy && !dialogOpen){
     if(W.npu){ W.npu.life-=dt; if(W.npu.life<=0){ W.npu=null; W.nNext=5+Math.random()*3 }
       else if(Math.hypot(S.x-W.npu.x-.5,S.y-W.npu.y-.5)<.7){ const k=W.npu.k; W.npu=null; W.nNext=9+Math.random()*4; Sfx.item(); toast(PWR[k].msg);
@@ -1201,7 +1201,7 @@ function monkeyCharge(m){
   m.charge=.65; m.stage=0; m.tension=0; W.shake=.5; Sfx.screech(); Sfx.slap(); Sfx.bad();
   let dx=S.x-m.x, dy=S.y-m.y; const d=Math.hypot(dx,dy)||1; dx/=d; dy/=d; const bl=blockedSet();
   for(const k of [2,1.5,1]){ const tx=Math.floor(S.x+dx*k), ty=Math.floor(S.y+dy*k); if(inside(tx,ty)&&!bl.has(tx+','+ty)){ S.x=tx+.5; S.y=ty+.5; resetTrail(); break } }
-  W.path=[]; W.cb=null; W.inv=1.2; W.ouCalm=2.5;
+  W.path=[]; W.cb=null; W.inv=2; W.ouCalm=3;
   if(S.banan>0 && Math.random()<.35){ S.banan--; save(); renderInv(); toast('Maymun üstüne atıldı, tırmaladı ve bir yemi kaptı!',2400) }
   else toast('Maymun üstüne atıldı! Bu bir uyarıydı, uzak dur.',2400);
   m.tx=Math.max(.5,Math.min(A.W-.5,m.x-dx*3)); m.ty=Math.max(.5,Math.min(A.H-.5,m.y-dy*3)); m.pause=0;
@@ -1213,8 +1213,8 @@ function monkeyUpdate(dt){
   const armed=free && S.ou.bananas && S.banan>0 && W.ouCalm<=0;
   for(const m of W.mk){ if(S.ou[m.id] || m.wait){ m.moving=false; m.tension=0; m.stage=0; continue }
     if(m.charge>0){ m.charge-=dt; m.moving=false; continue }
-    const dd=Math.hypot(S.x-m.x,S.y-m.y), near=dd<1.7, still=!W.moving;
-    m.tension=Math.max(0,Math.min(3,(m.tension||0)+(!armed?-dt*1.4:near&&still?dt:near?dt*.35:-dt*1.4)));
+    const dd=Math.hypot(S.x-m.x,S.y-m.y), near=dd<1.5, still=!W.moving;
+    m.tension=Math.max(0,Math.min(3,(m.tension||0)+(!armed?-dt*1.6:near&&still?dt*.7:near?dt*.2:-dt*1.6)));
     const st=m.tension>2.4?3:m.tension>1.6?2:m.tension>.8?1:0;
     if(st>(m.stage||0)){
       if(st===1){ Sfx.grunt(); if(!S.ou.warn1){ S.ou.warn1=1; save(); toast('Maymun ağzını “O” yapıp sana bakıyor. Geri çekil!',2400) } }
@@ -1253,7 +1253,7 @@ cv.addEventListener('pointerdown', e=>{
 function resetTrail(){ W.trail=[]; for(let i=0;i<80;i++) W.trail.push([S.x,S.y,W.flip]) }
 
 function update(dt){
-  W.t+=dt; W.shake=Math.max(0,W.shake-dt); if(W.tapMark) W.tapMark.t-=dt;
+  W.t+=dt; W.shake=Math.max(0,W.shake-dt); W.inv=Math.max(0,(W.inv||0)-dt); if(W.tapMark) W.tapMark.t-=dt;
   if(!W.busy && !dialogOpen && W.path.length){
     const [tx,ty]=W.path[0], cx=tx+.5, cy=ty+.5, dx=cx-S.x, dy=cy-S.y, d=Math.hypot(dx,dy), sp=3.3*dt*(W.spd||1);
     if(Math.abs(dx-dy)>.01) W.flip=(dx-dy)<0;
@@ -1321,7 +1321,7 @@ function render(){
   if(A.extra) list.push(...A.extra());
   const fols=['scooby','luka','simba','joker'].filter(follows);
   fols.forEach((k,i)=>{ const idx=Math.max(0,W.trail.length-1-(i+1)*6); const [fx,fy,ff]=W.trail[idx]||[S.x,S.y,W.flip]; const mv=W.moving; list.push({pt:[fx,fy], depth:fx+fy, draw(){ const [sx,sy]=P(fx,fy); const an={t:W.t+i,walk:mv,flip:ff}; if(k==='scooby') dog(sx,sy,{...an,scale:.95}); else cat(sx,sy,k,an) }}) });
-  list.push({pt:[S.x,S.y], depth:S.x+S.y+.01, draw(){ if(W.inv>0 && Math.floor(W.t*12)%2) return; const [sx,sy]=P(S.x,S.y); const dz=viDizzy(); human(sx+Math.sin(W.t*2.3)*2.4*dz,sy,LOOK.su,{t:W.t,walk:W.moving,flip:W.flip,look:dz>.6&&Math.sin(W.t*.8)>.6?'away':null}) }});
+  list.push({pt:[S.x,S.y], depth:S.x+S.y+.01, draw(){ if(W.inv>0 && S.area==='ouzoud' && Math.floor(W.t*12)%2) return; const [sx,sy]=P(S.x,S.y); const dz=viDizzy(); human(sx+Math.sin(W.t*2.3)*2.4*dz,sy,LOOK.su,{t:W.t,walk:W.moving,flip:W.flip,look:dz>.6&&Math.sin(W.t*.8)>.6?'away':null}) }});
   W.drawn=[]; for(const e of isoSort(list)){ e.draw(); if(e.tap){ if(!e.hit){ const c=e.blocks&&e.blocks().length?e.blocks():[e.use]; const xs=c.map(t=>P(t[0]+.5,t[1]+.5)); const x0=Math.min(...xs.map(p=>p[0]))-14, x1=Math.max(...xs.map(p=>p[0]))+14, y1=Math.max(...xs.map(p=>p[1]))+6; e.hit=[x0,y1-50,x1-x0,50] } W.drawn.push(e) } }
   W.attnPts=[]; for(const e of [...A.ents, ...(S.area==='ouzoud'?monkeyEnts():[])]) if((e.show?e.show():true) && (typeof e.attn==='function'?e.attn():false)){ let sx,sy; if(e.pt){ [sx,sy]=P(e.pt[0],e.pt[1],34) } else { const t=e.blocks().length?e.blocks()[0]:e.use; const z=e.id==='balloon'?106:e.id==='tree'?76:40; [sx,sy]=P(t[0]+.5,t[1]+.5,z) } bang(sx,sy+Math.sin(W.t*5)*1.6); W.attnPts.push([sx,sy]) }
   { const q=[]; if(W.mode==='chase'&&W.chase){ if(W.chase.pu) q.push([W.chase.pu.x+.5,W.chase.pu.y+.5]); for(const sn of W.chase.snacks) q.push([sn.px,sn.py]) } if(S.area==='nice'&&W.npu) q.push([W.npu.x+.5,W.npu.y+.5]); for(const [x,y] of q) W.attnPts.push(P(x,y,10)) }
@@ -1403,7 +1403,7 @@ async function goArea(to, spawn, instant=false){
   if(to==='river' && !S.done.ch1 && !has('flash')) return busyTalk([['su','Dışarısı zifiri karanlık! Önce bir fener bulmalıyım.'],['scooby','Rarın yanında rir kayıp eşya kutusu vardı...']]);
   if(to==='deck' && !S.done.ch3 && !follows('joker')) return busyTalk([['ghost','BUUU! Teknenin kapısı kapalı!'],['luka',`Miyav... (${CN.luka} arkana saklanıyor. Hayaletleri korkutacak cesur biri lazım.)`],['scooby','Bahçede çok sinirli rir kedi vardı...']]);
   if(!instant){ Sfx.door(); W.busy=true; await fadeOut() }
-  S.area=to; S.x=spawn[0]; S.y=spawn[1]; A=AREAS[to](); W.wave=null; W.shells=[]; W.npu=null; W.boots=0; W.nNext=6; W.spd=1; if(to==='nice' && !S.nice.got){ spawnShell(); spawnShell() } W.mk=null; W.ouCalm=4; W.path=[]; W.cb=null; W.snap=true; W.bgKey=null; resetTrail(); save(); renderHud();
+  S.area=to; S.x=spawn[0]; S.y=spawn[1]; A=AREAS[to](); W.wave=null; W.shells=[]; W.npu=null; W.boots=0; W.nNext=6; W.spd=1; if(to==='nice' && !S.nice.got){ spawnShell(); spawnShell() } W.mk=null; W.ouCalm=4; W.inv=0; W.path=[]; W.cb=null; W.snap=true; W.bgKey=null; resetTrail(); save(); renderHud();
   if(!instant){ await fadeIn(); W.busy=false }
   showBanner(A.name);
   await onEnter(to);
@@ -1575,7 +1575,7 @@ function chaseHud(){ const C=W.chase; $('#chaseHud').innerHTML=C.hudTxt=chaseTex
 function jokerAttack(){ const C=W.chase; if(!C||C.power<4) return; C.power=0; Sfx.hiss(); W.shake=.3; for(const gh of C.ghosts) gh.hid=4; toast(`${CN.joker} hayaletleri kovaladı!`); chaseHud() }
 function chaseUpdate(dt){
   const C=W.chase; if(!C || W.busy || dialogOpen) return;
-  W.inv=Math.max(0,(W.inv||0)-dt); const bl=blockedSet();
+  const bl=blockedSet();
   for(const k in C.fx) C.fx[k]=Math.max(0,C.fx[k]-dt);
   W.spd=C.fx.speed>0?1.7:1;
   if(C.pu){ C.pu.life-=dt;
