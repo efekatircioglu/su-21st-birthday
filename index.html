@@ -941,13 +941,13 @@ const AREAS = {
     },
     deco(){ for(const [x,y] of [[5.5,2.5],[6.3,6.5]]){ const [sx,sy]=P(x,y); glow(sx,sy,50,'255,200,120',.14) } },
     ents:[
-      ent({id:'haylaz', pt:[3.5,7.5], use:[4,7], depth:10.6, attn:()=>!gotPhotos().includes('s1'),
-        draw(){ const [sx,sy]=P(3.5,7.5), got=gotPhotos().includes('s1');
+      ent({id:'haylaz', pt:[7.5,7.5], use:[6,7], depth:15.6, attn:()=>!gotPhotos().includes('s1'),
+        draw(){ const [sx,sy]=P(7.5,7.5), got=gotPhotos().includes('s1');
           if(!got){ glow(sx,sy-4,14,'255,225,150',.5); g.save(); g.translate(sx+4,sy-1.5); g.rotate(.5); rrect(-3,-6,6,12,.8,'#ffffff'); for(let i=0;i<3;i++) rrect(-2.3,-5.2+i*3.6,4.6,3,.4,'#c84a6a'); g.restore() }
           cat(sx-1,sy,'haylaz',{t:W.t,scale:.72}); if(!got){ g.font='700 4px "Baloo 2",sans-serif'; g.fillStyle='rgba(255,255,255,.75)'; g.fillText('z',sx+3,sy-14-Math.sin(W.t*2)*1.5) }
           this.hit=[sx-10,sy-16,20,18] },
         async tap(){ if(gotPhotos().includes('s1')) return busyTalk([['haylaz','Mrrr... (Haylaz sesini duyunca başını sana doğru çeviriyor.)'],['su','Gözleri görmüyor ama beni her seferinde sesimden tanıyor.']]);
-          await busyTalk([['narr','Masaların arasında minicik, beyaz-tekir bir kedi kıvrılmış uyuyor.'],['su','Haylaz! Ne işin var burada?'],['haylaz','Mrrr?'],['su','Haylaz göremiyor ama sesimi hemen tanıdı. Bak nasıl mırlıyor...'],['narr','Haylaz gerinip kalkıyor. Altında bir fotoğraf şeridi varmış!']]);
+          await busyTalk([['narr','Kapının yanında minicik, beyaz-tekir bir kedi kıvrılmış uyuyor.'],['su','Haylaz! Ne işin var burada?'],['haylaz','Mrrr?'],['su','Haylaz göremiyor ama sesimi hemen tanıdı. Bak nasıl mırlıyor...'],['narr','Haylaz gerinip kalkıyor. Altında bir fotoğraf şeridi varmış!']]);
           return givePhoto('s1') } }),
       ent({id:'bar', blocks:()=>[[1,1],[1,2],[1,3],[1,4],[1,5]], depth:8, draw(){ box3(1,1,1,5,22,'#7a4a2a',0,'#5a3420'); box(.95,.95,1.1,5.1,2,'#c9a441','#b08a30','#9a7a28',22); for(const y of [1.7,2.9,4.1]){ const [sx,sy]=P(1.5,y,24); rrect(sx-.8,sy-8,1.6,8,.8,'#d9a441'); rrect(sx-2,sy-9.5,4,2,1,'#2a2a2a'); circ(sx,sy-10.2,.9,'#d61f3c') } for(const y of [3.5,4.6]){ const [sx,sy]=P(1.6,y,24); rrect(sx-1.6,sy-5,3.2,5,.8,'rgba(255,220,120,.85)'); rrect(sx-1.6,sy-5,3.2,1.4,.6,'#fff') } }}),
       ent({id:'stool1', blocks:()=>[[2,2]], depth:5, draw(){ cyl(2.5,2.5,.18,10,'#5a3420'); cyl(2.5,2.5,.26,2,'#a83a3a',10) }}),
@@ -1691,7 +1691,7 @@ async function finishHunt(){ W.mode='explore'; actBtn(''); S.done.ch1=true; useI
 /* ---- real pictures: the Rome caricature and four photo-booth strips ---- */
 const CARICATURE='assets/karikatur-roma.jpg';
 const PHOTOS=[
-  {id:'s1', src:'assets/serit-1.jpg', name:'Acı biberli kabin', hint:'Dover Castle’da, Haylaz’ın altında', line:'Bu kabinde makine tepedeydi, hep yukarı baktık!'},
+  {id:'s1', src:'assets/serit-1.jpg', name:'Acı biberli kabin', hint:'Dover Castle’da, kapının yanında uyuyan Haylaz’da', line:'Bu kabinde makine tepedeydi, hep yukarı baktık!'},
   {id:'s2', src:'assets/serit-2.jpg', name:'Kalpli şerit', hint:'Çiftlikte, iki beyaz kazda', line:'XOXO çıkartmalı şeridimiz! Son karede yine öpüşüyoruz...'},
   {id:'s3', src:'assets/serit-3.jpg', name:'Photo Booth şeridi', hint:'Nehir kıyısında, Tonton’da', line:'Siyah beyaz Photo Booth şeridimiz! İlk karede bile öpüşmüşüz.'},
   {id:'s4', src:'assets/serit-4.jpg', name:'Schönbrunn şeridi', hint:'Viyana müzesindeki canavarda', line:'Viyana hayvanat bahçesindeki zebralı kabin! Hâlâ duvarımızda asılı.'},
@@ -2164,6 +2164,14 @@ if(/dev/.test(location.search)){
       ['Nehir (Tonton)',()=>{ S.done.ch1=true; goArea('river',[10.5,2.5]) }],
       ['Bahçe (Joker)',()=>{ S.done.ch1=true; goArea('park',[8.5,6.5]) }],
       ['Tamesis Dock',()=>{ S.done.ch1=true; goArea('deck',[5.5,5.5]) }],
+    ]],
+    ['REFERANSLAR',[
+      ['Haylaz (Pub)',()=>goArea('pub',[5.5,7.5])],
+      ['Tonton + Turuncu Efe',()=>{ S.done.ch1=true; goArea('river',[6.5,4.5]) }],
+      ['Pişmaniye + Gevrek',()=>{ S.done.ch1=true; goArea('deck',[3.5,5.5]) }],
+      ['Kazlar (Çiftlik)',()=>{ early(); goArea('farm',[7.5,6.5]) }],
+      ['Canavar (Viyana)',()=>{ early(); goArea('viyana',[5.5,7.5]) }],
+      ['Karikatür (Roma)',()=>{ early(); runChapter('memo') }],
     ]],
     ['MİNİ OYUNLAR',[
       ['Maymun dengesi',()=>{ W.running=false; stageBalance('peanut',1).then(back) }],
