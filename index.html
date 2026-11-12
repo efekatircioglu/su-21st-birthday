@@ -451,9 +451,9 @@ const LOOK = {
            outfit:'halter', dress:'#cc1a2e', choker:true, legs:'#f7dbc9', shoes:'#d8b096' },
   daphne:{ body:'f', skin:'#f6dac4', skinSh:'#e6b99f', hair:'#de6c2c', hairHi:'#f59a52', hairLo:'#a84a18', style:'bob', iris:'#5f8a3a', lashes:true, brow:'#a84a18', browW:.3, lips:'#c4516a',
            outfit:'dress', dress:'#8e44ad', legs:'#f0c9b0', shoes:'#6b2a8a', headband:'#c084fc', scarf:'#3fb950' },
-  // Efişkom (Thames photo): dark brown hair swept back with a little wave, short beard, navy linen shirt open at the collar, thin chain
-  efe:   { body:'m', skin:'#e8be9e', skinSh:'#d29f80', hair:'#2a1c15', hairHi:'#5e4434', hairLo:'#150d09', style:'swept', iris:'#4a2c18', brow:'#1d140f', browW:.5, lips:'#b87c70', beard:true, grin:true,
-           outfit:'shirt', top:'#1e2840', legs:'#2b2b33', shoes:'#16121b' },
+  // Efişkom (Thames photo): dark brown hair swept back with a little wave, clean-shaven, navy linen shirt open at the collar, thin chain, white trousers
+  efe:   { body:'m', skin:'#e8be9e', skinSh:'#d29f80', hair:'#2a1c15', hairHi:'#5e4434', hairLo:'#150d09', style:'swept', iris:'#4a2c18', brow:'#1d140f', browW:.5, lips:'#b87c70', grin:true,
+           outfit:'shirt', top:'#1e2840', legs:'#eeeae2', shoes:'#16121b' },
 };
 function human(sx,sy,L,an={}){
   const t=an.t||0, walk=an.walk, ph=walk?Math.sin(t*11):0, bob=walk?Math.abs(Math.sin(t*11))*.9:Math.sin(t*2.2)*.3;
