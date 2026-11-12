@@ -78,6 +78,11 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;background:none}
 .slot canvas{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.08)}
 .slot.new{animation:pop2 .6s}
 #actbtn{pointer-events:auto}
+#flyBtn{position:absolute;z-index:7;right:10px;bottom:calc(env(safe-area-inset-bottom) + 66px);font-size:17px;padding:10px 18px 10px 14px;display:flex;align-items:center;gap:9px;background:linear-gradient(#ff8fb0,#ff5d8f);color:#fff;box-shadow:0 4px 0 #b8325e,0 0 22px rgba(255,93,143,.6)}
+#flyBtn[hidden]{display:none}
+#flyBtn .bic{position:relative;width:18px;height:25px;flex:none}
+#flyBtn .bic::before{content:'';position:absolute;left:0;top:0;width:18px;height:18px;border-radius:50% 50% 45% 45%;background:repeating-linear-gradient(90deg,#ffd23f 0 4.5px,#fff3c4 4.5px 9px);box-shadow:inset -3px -2px 0 rgba(0,0,0,.12)}
+#flyBtn .bic::after{content:'';position:absolute;left:6px;bottom:0;width:6px;height:5px;border-radius:1.5px;background:#8a5a2b}
 #actbtn[hidden]{display:none}
 #banner{position:absolute;z-index:7;left:50%;top:24%;transform:translateX(-50%);padding:8px 18px;font-size:19px;font-weight:800;color:var(--gold);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .5s}
 #banner.on{opacity:1}
@@ -222,6 +227,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;background:none}
     </div>
     <div id="chaseHud" class="pp" hidden></div>
     <div id="banner" class="pp"></div>
+    <button class="btn" id="flyBtn" hidden><span class="bic"></span>Balonla uç</button>
     <div id="wbar">
       <button class="btn" id="actbtn" hidden></button>
       <div id="inv"></div>
@@ -738,7 +744,10 @@ function cyl(x,y,r,h,col,z0=0){ const [sx,sy]=P(x,y,z0), rx=r*HW*1.41, ry=rx/2; 
 function lamp(x,y,h=38,lit=true){ const [sx,sy]=P(x,y); softShadow(sx,sy,6,2,.3); if(lit) glow(sx,sy-h+2,34,'255,220,150',.32); g.fillStyle='#16141c'; rrect(sx-1,sy-h+6,2,h-6,1,'#16141c'); rrect(sx-3,sy-3,6,3,1,'#16141c'); rrect(sx-3.6,sy-h+5,7.2,1.6,.8,'#16141c');
   const lg=g.createRadialGradient(sx,sy-h+1,0,sx,sy-h+1,4); lg.addColorStop(0,lit?'#fffbe0':'#77708a'); lg.addColorStop(1,lit?'#ffcf6a':'#55506a'); g.fillStyle=lg; g.beginPath(); g.ellipse(sx,sy-h+1,3,4,0,0,TAU); g.fill(); pathFill([[sx-3.4,sy-h-2.6],[sx,sy-h-6],[sx+3.4,sy-h-2.6]],'#16141c') }
 function tableLamp(x,y,z){ const [sx,sy]=P(x,y,z); glow(sx,sy-7,30,'255,214,120',.3); line(sx,sy,sx,sy-6,.8,'#3a2a14'); ell(sx,sy,2,1,'#3a2a14'); g.fillStyle='#e9b93a'; g.beginPath(); g.moveTo(sx-4,sy-6); g.quadraticCurveTo(sx,sy-11,sx+4,sy-6); g.closePath(); g.fill(); ell(sx,sy-6,4,1,'#fff3b0') }
-function tree(x,y,h=50,col='#2b6b3a'){ const [sx,sy]=P(x+.5,y+.5); softShadow(sx,sy,16,6,.3); const tg=g.createLinearGradient(sx-3,0,sx+3,0); tg.addColorStop(0,'#5a3a20'); tg.addColorStop(1,'#3a2414'); g.fillStyle=tg; g.beginPath(); g.moveTo(sx-2.6,sy); g.lineTo(sx-1.6,sy-h+12); g.lineTo(sx+1.6,sy-h+12); g.lineTo(sx+2.6,sy); g.fill();
+// true when Su stands behind a tall object at tile centre (cx,cy) and would be covered by it on screen
+function suBehind(cx,cy,halfW,h){ if(!S||S.x+S.y>=cx+cy) return false; const [bx,by]=P(cx,cy), [sx,sy]=P(S.x,S.y); return Math.abs(sx-bx)<halfW && sy>by-h && sy-44<by }
+function tree(x,y,h=50,col){ const f=suBehind(x+.5,y+.5,22,h+18); if(f){ g.save(); g.globalAlpha=.38 } treeRaw(x,y,h,col); if(f) g.restore() }
+function treeRaw(x,y,h=50,col='#2b6b3a'){ const [sx,sy]=P(x+.5,y+.5); softShadow(sx,sy,16,6,.3); const tg=g.createLinearGradient(sx-3,0,sx+3,0); tg.addColorStop(0,'#5a3a20'); tg.addColorStop(1,'#3a2414'); g.fillStyle=tg; g.beginPath(); g.moveTo(sx-2.6,sy); g.lineTo(sx-1.6,sy-h+12); g.lineTo(sx+1.6,sy-h+12); g.lineTo(sx+2.6,sy); g.fill();
   const cs=[[0,-h+4,14],[-10,-h+11,10],[10,-h+11,10],[-5,-h-4,10],[6,-h-2,9]]; for(const [dx,dy,r] of cs) circ(sx+dx,sy+dy,r,shade(col,-.25)); for(const [dx,dy,r] of cs){ const gr=g.createRadialGradient(sx+dx-r*.3,sy+dy-r*.4,1,sx+dx,sy+dy,r); gr.addColorStop(0,shade(col,.25)); gr.addColorStop(1,col); g.fillStyle=gr; g.beginPath(); g.arc(sx+dx-1,sy+dy-1,r*.82,0,TAU); g.fill() } }
 function plant(x,y){ const [sx,sy]=P(x+.5,y+.5); softShadow(sx,sy,8,3,.3); box3(x+.25,y+.25,.5,.5,8,'#a0522d'); for(const [dx,dy,r] of [[0,-14,7],[-5,-10,5],[5,-10,5],[0,-19,4.5],[-3,-17,4],[4,-17,4]]){ circ(sx+dx,sy+dy,r,'#2b6b3a'); circ(sx+dx-1,sy+dy-1.2,r*.6,'#3f8a4a') } }
 function waterArea(pts){ const ys=pts.map(p=>p[1]), gr=g.createLinearGradient(0,Math.min(...ys),0,Math.max(...ys)); gr.addColorStop(0,'#16245e'); gr.addColorStop(1,'#0c1438'); poly(pts,gr) }
@@ -780,7 +789,7 @@ function exitEnt(x,y,label,to,spawn){ return ent({ id:'exit-'+to, exit:true, use
     this.hit=[sx-14,sy-22,28,34] },
   tap(){ return goArea(to, spawn) } }) }
 function balloonEnt(x,y){ return ent({ id:'balloon', name:'Balon', blocks:()=>[[x,y],[x+1,y],[x,y+1],[x+1,y+1]], use:[x,y+2], depth:x+y+2, attn:()=>(S.area==='park' && has('toblerone') && !S.done.ch2),
-  draw(){ drawBalloon(x+1,y+1,S.area==='park'&&!S.done.ch2) },
+  draw(){ const f=suBehind(x+1,y+1,32,118); if(f){ g.save(); g.globalAlpha=.35 } drawBalloon(x+1,y+1,S.area==='park'&&!S.done.ch2); if(f) g.restore() },
   async tap(){
     if(S.area==='park' && !S.done.ch2){
       if(has('toblerone')){ await busyTalk([['su',`${CN.simba}! Bak sana ne getirdim...`],['simba','PRRRR! Toblerone! Tamam tamam, balon kalkıyor! Ama önce benim sınavımı geçmen lazım...']]); useItem('toblerone'); return runChapter('ch2') }
@@ -983,8 +992,8 @@ const AREAS = {
           S.farm.fed[a.k]=true; S.farm.carry=null; save(); Sfx.animal(); renderInv(); toast(`${a.name} mutlu!`);
           if(FARM_ANIMALS.every(b=>S.farm.fed[b.k])){ S.farm.done=true; save(); await busyTalk([['narr','Keçi garip bir ses çıkarıyor... ve bir kâğıt parçası öksürüyor!'],['scooby','Riyy! Ralpli rir şey!'],['su','Takvim parçası! Keçi yemiş olmalı.'],['daphne','Çiftliğin yaramazı belli oldu.']]); await addPiece('farm') } } })),
       ent({id:'fence1', blocks:()=>[[6,5],[7,5],[8,5]], depth:13, draw(){ for(let x=6;x<9;x+=.5){ const [sx,sy]=P(x+.25,5.5); rrect(sx-.8,sy-10,1.6,10,.6,'#8a6038') } const a=P(6,5.5,7),b=P(9,5.5,7); line(a[0],a[1],b[0],b[1],1.2,'#a07048'); const c=P(6,5.5,3),d=P(9,5.5,3); line(c[0],c[1],d[0],d[1],1.2,'#a07048') }}),
-      ent({id:'hayb', blocks:()=>[[9,3]], depth:12, draw(){ box3(9.05,3.1,.9,.8,11,'#e8c35a',0,'#f2d27a') }}),
-      ent({id:'treeF', blocks:()=>[[9,8]], depth:17, draw(){ tree(9,8,50,'#3f7a3a') }}),
+      ent({id:'hayb', blocks:()=>[[9,5]], depth:14, draw(){ box3(9.05,5.1,.9,.8,11,'#e8c35a',0,'#f2d27a') }}),
+      ent({id:'treeF', blocks:()=>[[0,0]], depth:0, draw(){ tree(0,0,50,'#3f7a3a') }}),
       balloonEnt(2,5),
     ],
   }),
@@ -1017,8 +1026,8 @@ const AREAS = {
         draw(){ const [ax,ay]=P(1,0,60), [bx,by]=P(8,2,0); this.hit=[Math.min(ax,bx),ay,Math.abs(bx-ax),by-ay] },
         async tap(){ if(S.roma.wish) return busyTalk([['narr','Havuzun dibinde binlerce bozuk para parlıyor. Seninkiler de orada.']]);
           S.roma.wish=true; save(); Sfx.collect(); await busyTalk([['narr','Aşk Çeşmesi. Geleneğe göre çeşmeye sırtını döner, sağ elinle sol omzunun üstünden para atarsın.'],['su','Bir para: Roma’ya geri dönmek için. İki para: aşk için...'],['su',`Üçüncüsünü de atıyorum. Ne dilediğimi ${E} bilir.`],['scooby','Rir tane de Scooby atıştırmalığı için!']]); Sfx.fanfare(); renderHud() } }),
-      ent({id:'easel', blocks:()=>[[1,3]], use:[2,3], depth:5, attn:()=>!S.pieces.includes('roma'),
-        draw(){ const [sx,sy]=P(1.5,3.5); line(sx-5,sy,sx-1,sy-26,1,'#6b4a2a'); line(sx+5,sy,sx+1,sy-26,1,'#6b4a2a'); rrect(sx-8,sy-25,16,13,1,'#f6efd8'); for(let i=0;i<4;i++) rrect(sx-6.5+i*3.4,sy-23,2.8,3.6,.4,['#7cc4ff','#ff9f1c','#9be15d','#ff5d8f'][i]); for(let i=0;i<4;i++) rrect(sx-6.5+i*3.4,sy-18.6,2.8,3.6,.4,['#ffd23f','#c084fc','#2bb3a3','#e33'][i]) },
+      ent({id:'easel', blocks:()=>[[1,5]], use:[2,5], depth:7, attn:()=>!S.pieces.includes('roma'),
+        draw(){ const [sx,sy]=P(1.5,5.5); line(sx-5,sy,sx-1,sy-26,1,'#6b4a2a'); line(sx+5,sy,sx+1,sy-26,1,'#6b4a2a'); rrect(sx-8,sy-25,16,13,1,'#f6efd8'); for(let i=0;i<4;i++) rrect(sx-6.5+i*3.4,sy-23,2.8,3.6,.4,['#7cc4ff','#ff9f1c','#9be15d','#ff5d8f'][i]); for(let i=0;i<4;i++) rrect(sx-6.5+i*3.4,sy-18.6,2.8,3.6,.4,['#ffd23f','#c084fc','#2bb3a3','#e33'][i]) },
         async tap(){ if(S.pieces.includes('roma')) return busyTalk([['narr','Ressamın kartpostalları duruyor. Hepsi sizin anılarınız.']]);
           await busyTalk([['narr','Bir sokak ressamının sehpasında kartpostallar dizili. Arkalarında bir şey parlıyor...'],['daphne','Takvim parçası kartların arasında! Eşleri bulursak ressam bize verir.']]); return runChapter('memo') } }),
       ent({id:'vespa', blocks:()=>[[1,7]], depth:9, draw(){ const [sx,sy]=P(1.5,7.5); softShadow(sx,sy,10,3,.3); circ(sx-6,sy-3,3,'#222'); circ(sx+6,sy-3,3,'#222'); g.fillStyle='#8fd8c8'; g.beginPath(); g.moveTo(sx-8,sy-4); g.quadraticCurveTo(sx-6,sy-12,sx+1,sy-10); g.lineTo(sx+7,sy-10); g.quadraticCurveTo(sx+9,sy-5,sx+8,sy-4); g.closePath(); g.fill(); line(sx+6,sy-10,sx+5,sy-18,1,'#555'); line(sx+2,sy-18,sx+8,sy-18,1,'#555'); rrect(sx-5,sy-12,7,2,1,'#5a3a20') } }),
@@ -1080,7 +1089,7 @@ const AREAS = {
     deco(){ poly([P(1,3.2),P(10,3.2),P(10,4.8),P(1,4.8)],'rgba(140,20,40,.55)'); for(const [x,y] of [[1,3.2],[10,3.2]]){} },
     anim(t){ for(const pz of PAINTINGS) if(pz.live){ const [u0,u1,v0,v1]=pz.r; pic(pz.plane,u0,u1,v0,v1,()=>pz.live(t)) } },
     ents:[
-      ...PAINTINGS.map(pz=>ent({id:'pz-'+pz.id, use:pz.use, flat:true,
+      ...PAINTINGS.map(pz=>ent({id:'pz-'+pz.id, use:pz.use, flat:true, attnAt: pz.plane==='y' ? [(pz.r[0]+pz.r[1])/2,0,pz.r[3]+8] : [0,(pz.r[0]+pz.r[1])/2,pz.r[3]+8],
         draw(){ const [u0,u1,v0,v1]=pz.r; const pts=pz.plane==='y'?[P(u0,0,v0),P(u1,0,v0),P(u0,0,v1),P(u1,0,v1)]:[P(0,u0,v0),P(0,u1,v0),P(0,u0,v1),P(0,u1,v1)]; const xs=pts.map(q=>q[0]), ys=pts.map(q=>q[1]); this.hit=[Math.min(...xs),Math.min(...ys),Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys)] },
         attn:()=>pz.id==='kiss' && S.vi.water && !S.pieces.includes('viyana'),
         tap(){ return pz.tap() } })),
@@ -1169,9 +1178,9 @@ function drawBoat(x,y,z){
   for(const [u,c] of [[x+5.2,'#e33'],[x+5.9,'#2e7d4f']]){ const [px,py]=P(u,y+1.4,z+40); g.fillStyle=c; g.beginPath(); g.moveTo(px-10,py); g.quadraticCurveTo(px,py-9,px+10,py); g.fill() }
 }
 const FARM_ANIMALS=[
-  { k:'goat', name:'Keçi', fn:goat, x:7, y:3, use:[6,3], food:'hay', hint:'Keçi sana umutla bakıyor. Saman kokusu alıyor gibi.', full:'Keçi geviş getiriyor.' },
+  { k:'goat', name:'Keçi', fn:goat, x:8, y:6, use:[7,6], food:'hay', hint:'Keçi sana umutla bakıyor. Saman kokusu alıyor gibi.', full:'Keçi geviş getiriyor.' },
   { k:'sheep', name:'Koyun', fn:sheep, x:4, y:7, use:[4,6], food:'lettuce', hint:'Koyun yeşil bir şeyler istiyor.', full:'Koyun mışıl mışıl uyukluyor.', flip:true },
-  { k:'chicken', name:'Tavuk', fn:chicken, x:4, y:3, use:[4,4], food:'corn', hint:'Tavuk yerde sarı taneler arıyor.', full:'Tavuk mutlu mutlu gıdaklıyor.' },
+  { k:'chicken', name:'Tavuk', fn:chicken, x:5, y:6, use:[6,6], food:'corn', hint:'Tavuk yerde sarı taneler arıyor.', full:'Tavuk mutlu mutlu gıdaklıyor.' },
   { k:'alpaca', name:'Alpaka', fn:alpaca, x:0, y:8, use:[1,8], food:'carrot', hint:'Alpaka turuncu, çıtır bir şey istiyor.', full:'Alpaka sana gülümsüyor. (Alpakalar gülümser mi? Bu gülümsüyor.)', flip:true },
 ];
 
@@ -1246,7 +1255,7 @@ cv.addEventListener('pointerdown', e=>{
   if(!W.running || W.busy || dialogOpen || W.mode==='trap') return; Sfx.init();
   const r=cv.getBoundingClientRect(), wx=W.camX+(e.clientX-r.left)/ZC, wy=W.camY+(e.clientY-r.top)/ZC;
   const hits=W.mode==='chase'?[]:W.drawn.filter(en=>en.tap && en.hit && wx>=en.hit[0]&&wx<=en.hit[0]+en.hit[2]&&wy>=en.hit[1]&&wy<=en.hit[1]+en.hit[3]);
-  if(hits.length){ hits.sort((a,b)=>a.hit[2]*a.hit[3]-b.hit[2]*b.hit[3]); const en=hits[0]; const u=en.use||[Math.floor(S.x),Math.floor(S.y)]; goTo(u, ()=>en.tap()); return }
+  if(hits.length){ hits.sort((a,b)=>a.hit[2]*a.hit[3]-b.hit[2]*b.hit[3]); const en=hits[0]; if((en.id==='balloon'||en.id==='exit-balloon') && S.done.ch2){ W.path=[]; W.cb=null; Sfx.whoosh(); return openMap() } const u=en.use||[Math.floor(S.x),Math.floor(S.y)]; goTo(u, ()=>en.tap()); return }
   const a=(wx-A.ox)/HW, b=(wy-A.oy)/HH, gx=Math.floor((a+b)/2), gy=Math.floor((b-a)/2);
   if(inside(gx,gy)){ const ex=A.ents.find(en=>en.exit&&en.use[0]===gx&&en.use[1]===gy); goTo([gx,gy], ex?()=>ex.tap():null); W.tapMark={x:gx+.5,y:gy+.5,t:.5} }
 });
@@ -1297,7 +1306,9 @@ function isoSort(list){
   const out=[...flat], rem=[...rest];
   while(rem.length){ let pick=rem.findIndex(i=>!rem.some(j=>j!==i && before(j,i))); if(pick<0){ pick=0; for(let k=1;k<rem.length;k++) if(rem[k].depth<rem[pick].depth) pick=k } out.push(rem.splice(pick,1)[0]) }
   return out }
+function flyAvail(){ return W.running && W.mode==='explore' && !W.busy && !dialogOpen && S.done && S.done.ch2 }
 function render(){
+  { const fb=$('#flyBtn'), fa=flyAvail(); if(fb.hidden===fa) fb.hidden=!fa }
   if(W.bgKey!==S.area+ZS) buildBg();
   const [px,py]=P(S.x,S.y), b=W.bb;
   let tx=px-VW/2, ty=py-VH*.5;
@@ -1323,7 +1334,7 @@ function render(){
   fols.forEach((k,i)=>{ const idx=Math.max(0,W.trail.length-1-(i+1)*6); const [fx,fy,ff]=W.trail[idx]||[S.x,S.y,W.flip]; const mv=W.moving; list.push({pt:[fx,fy], depth:fx+fy, draw(){ const [sx,sy]=P(fx,fy); const an={t:W.t+i,walk:mv,flip:ff}; if(k==='scooby') dog(sx,sy,{...an,scale:.95}); else cat(sx,sy,k,an) }}) });
   list.push({pt:[S.x,S.y], depth:S.x+S.y+.01, draw(){ if(W.inv>0 && S.area==='ouzoud' && Math.floor(W.t*12)%2) return; const [sx,sy]=P(S.x,S.y); const dz=viDizzy(); human(sx+Math.sin(W.t*2.3)*2.4*dz,sy,LOOK.su,{t:W.t,walk:W.moving,flip:W.flip,look:dz>.6&&Math.sin(W.t*.8)>.6?'away':null}) }});
   W.drawn=[]; for(const e of isoSort(list)){ e.draw(); if(e.tap){ if(!e.hit){ const c=e.blocks&&e.blocks().length?e.blocks():[e.use]; const xs=c.map(t=>P(t[0]+.5,t[1]+.5)); const x0=Math.min(...xs.map(p=>p[0]))-14, x1=Math.max(...xs.map(p=>p[0]))+14, y1=Math.max(...xs.map(p=>p[1]))+6; e.hit=[x0,y1-50,x1-x0,50] } W.drawn.push(e) } }
-  W.attnPts=[]; for(const e of [...A.ents, ...(S.area==='ouzoud'?monkeyEnts():[])]) if((e.show?e.show():true) && (typeof e.attn==='function'?e.attn():false)){ let sx,sy; if(e.pt){ [sx,sy]=P(e.pt[0],e.pt[1],34) } else { const t=e.blocks().length?e.blocks()[0]:e.use; const z=e.id==='balloon'?106:e.id==='tree'?76:40; [sx,sy]=P(t[0]+.5,t[1]+.5,z) } bang(sx,sy+Math.sin(W.t*5)*1.6); W.attnPts.push([sx,sy]) }
+  W.attnPts=[]; for(const e of [...A.ents, ...(S.area==='ouzoud'?monkeyEnts():[])]) if((e.show?e.show():true) && (typeof e.attn==='function'?e.attn():false)){ let sx,sy; if(e.attnAt){ [sx,sy]=P(...e.attnAt) } else if(e.pt){ [sx,sy]=P(e.pt[0],e.pt[1],34) } else { const t=e.blocks().length?e.blocks()[0]:e.use; const z=e.id==='balloon'?106:e.id==='tree'?76:40; [sx,sy]=P(t[0]+.5,t[1]+.5,z) } bang(sx,sy+Math.sin(W.t*5)*1.6); W.attnPts.push([sx,sy]) }
   { const q=[]; if(W.mode==='chase'&&W.chase){ if(W.chase.pu) q.push([W.chase.pu.x+.5,W.chase.pu.y+.5]); for(const sn of W.chase.snacks) q.push([sn.px,sn.py]) } if(S.area==='nice'&&W.npu) q.push([W.npu.x+.5,W.npu.y+.5]); for(const [x,y] of q) W.attnPts.push(P(x,y,10)) }
   g.setTransform(1,0,0,1,0,0);
   if(W.mode==='explore'||W.mode==='chase'){ const m=30*DPR, top=118*DPR, bot=cv.height-150*DPR, ccx=cv.width/2, ccy=cv.height/2;
@@ -1421,11 +1432,12 @@ async function onEnter(to){
   if(to==='nice') await busyTalk([['narr','Nice, Baie des Anges. Masmavi deniz, çakıllı plaj, meşhur mavi sandalyeler...'],['su','Burada saatlerce denizi izlemiştik.'],['daphne','Kaptan takvim parçasını bir şişeye koyup denize atmış! Dalgalar kıyıya her vurduğunda deniz kabuğu bırakıyor.'],['daphne','8 kabuk toplarsan deniz şişeyi geri getirir. Ama dalgaya yakalanma: köpüğün geldiğini görünce geri çekil!'],['scooby','Rarada rumda parlayan şeyler çıkacak! Lastik çizme dalgadan korur, deniz yıldızı iki kabuk sayılır!']]);
   if(to==='kotor'){ W.running=false; await card('KOTOR','1350 Basamak','Zirveye tırman: sol ayak, sağ ayak, sırayla!'); await stageClimb(); startWorld(); await busyTalk([['narr','Kotor kalesinin zirvesi. Ayaklarının altında bütün körfez, kırmızı çatılı eski şehir...'],['su','1350 basamak! Ama bu manzaraya değerdi.'],['daphne','Bayrak direğinde bir şey dalgalanıyor... takvim parçası!']]) }
   if(to==='viyana') await busyTalk([['narr','Viyana. Bir şarap evinde (Heuriger) iki kadeh fazla içtikten sonra bir sanat müzesine girdiniz...'],['su','Hık! Tablolar... neden dans ediyor?'],['scooby','Ruh-roh... Rer şey iki tane!'],['daphne','Takvim parçası tabloların birinin arkasında. Ama önce kendine gel: köşede bir su sebili var.']]);
-  if(to==='roma') await busyTalk([['narr','Roma. Aşk Çeşmesi’nin (Fontana di Trevi) tam önündesiniz. Su şırıl şırıl, akşam ışığı mermerde parlıyor.'],['su','Tiramisu’nun ve Aşk Çeşmesi’nin memleketi!'],['daphne','Önce çeşmeye bir para at, sonra şu ressamın sehpasına bak...'],['daphne','Şu sokak ressamının sehpasına bak. Kartpostalların arasında bir şey parlıyor...']]);
+  if(to==='roma') await busyTalk([['narr','Roma. Aşk Çeşmesi’nin (Fontana di Trevi) tam önündesiniz. Su şırıl şırıl, akşam ışığı mermerde parlıyor.'],['su','Tiramisu’nun ve Aşk Çeşmesi’nin memleketi!'],['su','Bir de pizzanın ve spagettinin memleketi!'],['su','Burası olmasaydı ben yoğurtlu spagetti yiyemezdim. O yüzden burası çok önemli!'],['scooby','Rummy! Rir tabak ra rana!'],['daphne','Önce çeşmeye bir para at.'],['daphne','Sonra şu sokak ressamının sehpasına bak. Kartpostalların arasında bir şey parlıyor...']]);
 }
 
 /* ---------- map (balloon travel) ---------- */
 const DESTS=[ {id:'park',name:'Londra',sub:'Lambeth Sarayı Bahçesi',spawn:[4.5,4.5]}, {id:'ouzoud',name:'Ouzoud',sub:'Şelaleler · Fas',spawn:[5.5,8.5],piece:'ouzoud'}, {id:'farm',name:'Çiftlik',sub:'Hayvan besleme günü',spawn:[2.5,7.5],piece:'farm'}, {id:'roma',name:'Roma',sub:'Aşk Çeşmesi · İtalya',spawn:[4.5,8.5],piece:'roma'}, {id:'nice',name:'Nice',sub:'Baie des Anges · Fransa',spawn:[7.5,7.5],piece:'nice'}, {id:'kotor',name:'Kotor',sub:'Dağın zirvesi · Karadağ',spawn:[4.5,6.5],piece:'kotor'}, {id:'viyana',name:'Viyana',sub:'Sanat müzesi · Avusturya',spawn:[8.5,6.5],piece:'viyana'} ];
+$('#flyBtn').onclick=e=>{ e.stopPropagation(); if(!flyAvail()) return; Sfx.init(); Sfx.whoosh(); W.path=[]; W.cb=null; $('#flyBtn').hidden=true; openMap() };
 function openMap(){ return new Promise(res=>{
   W.running=false; show('map'); const box=$('#dests'); box.innerHTML='';
   for(const d of DESTS){ const b=document.createElement('button'); b.className='dest'+(d.piece&&S.pieces.includes(d.piece)?' done':'')+(S.area===d.id?' here':''); const c=document.createElement('canvas'); c.width=320; c.height=240; postcard(d.id,c); b.appendChild(c); const s=document.createElement('span'); s.innerHTML=`${d.name}<small>${d.sub}</small>`; b.appendChild(s);
@@ -1465,7 +1477,7 @@ function goalText(){
   if(!S.done.ch1) return has('flash') ? '<b>Hedef:</b> Kapıdan çık, kalpli duvara git' : '<b>Hedef:</b> Barın yanındaki kayıp eşya kutusunda fener ara';
   const t=[];
   if(!S.done.ch2) t.push(has('toblerone')?'Toblerone’u balondaki Simba’ya götür':'Bahçedeki balona git');
-  if(S.done.ch2 && S.pieces.length<NP) t.push(`Balonla uç, takvim parçalarını topla (${S.pieces.length}/${NP})`);
+  if(S.done.ch2 && S.pieces.length<NP) t.push(`“Balonla uç” düğmesine bas, parçaları topla (${S.pieces.length}/${NP})`);
   if(!follows('joker')) t.push('Ağaçtaki Joker’e balık götür');
   else if(!S.done.ch3) t.push('Joker’i Tamesis Dock’a götür');
   if(S.done.ch3 && S.pieces.length>=NP){ if(!has('plate')&&!S.bait) t.push('Teknedeki keçi peyniri ve ekmeği al'); else t.push('Yemi parlayan tuzak yerine koy') }
@@ -1494,7 +1506,7 @@ function actBtn(text, fn){ const b=$('#actbtn'); if(!text){ b.hidden=true; b.onc
 async function runChapter(k){
   if(k==='ch1') return startHunt();
   if(k==='ch2'){ W.running=false; await stageQuiz(); S.done.ch2=true; addItem('net'); addFollower('simba'); startWorld(); await addPiece('quiz');
-    return busyTalk([['simba','Prr! Al bunu: balonun ağı. Kaptanı yakalamak için lazım olacak. Ben de geliyorum!'],['daphne','Yukarıdan bir şey daha gördük: kaptan 14 Kasım yaprağını sekiz parçaya bölmüş!'],['daphne','Parçalardan ikisini bulduk. Kalanlar anılarınızda saklı: Ouzoud, çiftlik, Roma, Nice, Kotor ve Viyana.'],['simba','Balonuma dokun, nereye istersen uçarız. Prrr!']]) }
+    return busyTalk([['simba','Prr! Al bunu: balonun ağı. Kaptanı yakalamak için lazım olacak. Ben de geliyorum!'],['daphne','Yukarıdan bir şey daha gördük: kaptan 14 Kasım yaprağını sekiz parçaya bölmüş!'],['daphne','Parçalardan ikisini bulduk. Kalanlar anılarınızda saklı: Ouzoud, çiftlik, Roma, Nice, Kotor ve Viyana.'],['simba','Artık nereye istersen uçarız. Prrr!'],['daphne','Sağ alttaki pembe “Balonla uç” düğmesine bas, haritadan gideceğin yeri seç. Her yerden çalışır!']]) }
   if(k==='ch3') return startChase();
   if(k==='memo'){ W.running=false; await stageMemo(); startWorld(); await addPiece('roma'); return busyTalk([['narr','Ressam gülümseyip kartpostalların arkasındaki takvim parçasını uzattı.'],['su','Bütün anılarımız bir sehpada... Ne güzel.']]) }
   if(k==='finale') return startTrap();
