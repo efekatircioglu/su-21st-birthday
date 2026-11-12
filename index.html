@@ -25,6 +25,13 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;background:none}
 @keyframes blink{50%{opacity:.35}}
 @keyframes fadein{from{opacity:0}to{opacity:1}}
 @keyframes pop2{50%{transform:scale(1.18)}}
+#sketchOv{position:absolute;inset:0;z-index:80;background:rgba(10,6,20,.84);display:flex;align-items:center;justify-content:center;padding:18px}
+#sketchOv[hidden]{display:none}
+.skcard{background:#fbf6ea;border-radius:6px;padding:12px 12px 14px;box-shadow:0 18px 40px #000a;transform:rotate(-1.5deg);max-width:360px;width:100%;display:flex;flex-direction:column;align-items:center;gap:6px;animation:skIn .6s ease-out}
+@keyframes skIn{from{transform:rotate(-8deg) scale(.6);opacity:0}to{transform:rotate(-1.5deg) scale(1);opacity:1}}
+#skcv{width:100%;height:auto;display:block;border:1px solid #e2d6bc}
+.skcap{font-family:Caveat,cursive;font-size:27px;color:#3b2a14;line-height:1}
+.skcard .btn{margin-top:4px;font-size:17px;padding:9px 22px}
 @keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 .shake{animation:shake .3s}
 
@@ -300,6 +307,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;background:none}
 
   <canvas id="fx"></canvas>
   <div id="fade"></div>
+  <div id="sketchOv" hidden><div class="skcard"><canvas id="skcv" width="600" height="720"></canvas><div class="skcap">Su &amp; Efişkom · Roma</div><button class="btn" id="skOk">Teşekkürler!</button></div></div>
   <div id="dlg"><div class="dbox pp"><div id="dav"></div><div id="dname"></div><div id="dtext"></div><div class="dnext" id="dnext"></div><button id="dskip" aria-label="Konuşmayı atla">ATLA &rsaquo;&rsaquo;</button></div></div>
   <div id="card"><div class="k"></div><div class="t"></div><div class="s"></div><div class="tap">devam etmek için dokun</div></div>
 </div>
@@ -637,6 +645,8 @@ function alpaca(sx,sy,an={}){ g.save(); g.translate(sx,sy); softShadow(0,0,9,2.8
 
 /* ---------- item icons (drawn in a 40x40 box centred at 0,0) ---------- */
 const ICON = {
+  sketch(x,y){ rrect(x-13,y-16,26,32,2,'#8a5a2b'); rrect(x-11,y-14,22,28,1,'#fbf6ea'); g.strokeStyle='#4a4038'; g.lineWidth=1.1; g.lineCap='round';
+    for(const [cx,hc] of [[-4.5,'#d8ab60'],[4.5,'#2a1d16']]){ circ(x+cx,y-5,3,hc); g.beginPath(); g.arc(x+cx,y-4.6,2.4,0,TAU); g.stroke(); g.beginPath(); g.moveTo(x+cx-4,y+10); g.quadraticCurveTo(x+cx,y-1,x+cx+4,y+10); g.stroke() } heart(x,y+2,5,'#e8607a') },
   flash(x,y){ rrect(x-15,y-5,20,10,3,'#4a4f5a'); rrect(x-15,y-5,20,3,2,'#6a707c'); pathFill([[x+5,y-6],[x+13,y-9],[x+13,y+9],[x+5,y+6]],'#5a606c'); ell(x+13,y,2,9,'#ffe27a'); glow(x+15,y,14,'255,230,140',.35) },
   toblerone(x,y){ pathFill([[x-16,y+7],[x-12,y-5],[x+16,y-5],[x+18,y+7]],'#e8bf4a'); for(let i=0;i<5;i++){ const bx=x-12+i*6; pathFill([[bx,y-5],[bx+3,y-11],[bx+6,y-5]],'#8b5a2b') } rrect(x-8,y-2,14,5,1.5,'#d61f3c'); line(x-16,y+7,x+18,y+7,1,'rgba(0,0,0,.2)') },
   tomato(x,y){ circ(x,y+2,11,'#e8302f'); circ(x-4,y-2,3.2,'rgba(255,255,255,.45)'); for(let i=0;i<5;i++){ const a=i/5*TAU-Math.PI/2; pathFill([[x,y-8],[x+Math.cos(a)*7,y-8+Math.sin(a)*4],[x+Math.cos(a+.6)*2,y-8+Math.sin(a+.6)*2]],'#3f9a3a') } rrect(x-1,y-13,2,5,1,'#3f7a2a') },
@@ -757,7 +767,7 @@ function parliament(plane0,u0,s=1){ const c='#1d1640'; fR(plane0,u0,0,u0+6*s,26*
   const bu=u0-.5*s; fR(plane0,bu,0,bu+.7*s,62*s,'#241c4a'); fR(plane0,bu-.06*s,52*s,bu+.76*s,64*s,'#2b2257'); const [cx,cy]=P(plane0,bu+.35*s,58*s); glow(cx,cy,16*s,'255,233,168',.35); circ(cx,cy,2.6*s,'#ffe9a8'); const [tx,ty]=P(plane0,bu+.35*s,64*s); pathFill([[tx-5*s,ty+2*s],[tx,ty-16*s],[tx+5*s,ty-2*s]],'#241c4a') }
 
 /* ---------- state ---------- */
-const ITEMS = { flash:['Fener','flash'], toblerone:['Toblerone','toblerone'], fish:['Balık','fish'], net:['Ağ','net'], plate:['Keçi peyniri ve ekmek','plate'], bananas:['Maymun yemi','treats'], hay:['Saman','hay'], carrot:['Havuç','carrot'], corn:['Mısır','corn'], lettuce:['Marul','lettuce'] };
+const ITEMS = { flash:['Fener','flash'], toblerone:['Toblerone','toblerone'], fish:['Balık','fish'], net:['Ağ','net'], plate:['Keçi peyniri ve ekmek','plate'], bananas:['Maymun yemi','treats'], hay:['Saman','hay'], carrot:['Havuç','carrot'], corn:['Mısır','corn'], lettuce:['Marul','lettuce'], sketch:['Çizimimiz','sketch'] };
 const TOMS = { pub:[7,8], river:[10,4], park:[0,3], embank:[1,3], deck:[9,6], ouzoud:[9,8], farm:[0,7], roma:[8,8], nice:[10,5], kotor:[1,6], viyana:[0,7] };
 const NTOM = Object.keys(TOMS).length;
 let S=null;
@@ -1490,8 +1500,8 @@ function renderHud(){
 }
 function renderInv(fresh){
   if(!S) return; const inv=$('#inv'); inv.innerHTML='';
-  const add=(icon,label,isNew)=>{ const d=document.createElement('div'); d.className='slot pp'+(isNew?' new':''); d.appendChild(icon); d.append(label); inv.appendChild(d) };
-  for(const k of S.inv) add(iconCanvas(ITEMS[k][1]),ITEMS[k][0],k===fresh);
+  const add=(icon,label,isNew,fn)=>{ const d=document.createElement('div'); d.className='slot pp'+(isNew?' new':''); d.appendChild(icon); d.append(label); if(fn){ d.style.pointerEvents='auto'; d.style.cursor='pointer'; d.onclick=e=>{ e.stopPropagation(); if(!W.busy && !dialogOpen) fn() } } inv.appendChild(d) };
+  for(const k of S.inv) add(iconCanvas(ITEMS[k][1]),ITEMS[k][0],k===fresh,k==='sketch'?()=>showSketch():null);
   if(S.banan>0) add(iconCanvas('treats'),`Maymun yemi ×${S.banan}`,fresh==='bananas');
   if(S.area==='farm' && S.farm.carry) add(iconCanvas(S.farm.carry),`Elinde: ${ITEMS[S.farm.carry][0]}`,fresh===S.farm.carry);
   for(const k of S.fol.filter(k=>k!=='scooby')){ const c=getPortrait(k); const cc=document.createElement('canvas'); cc.width=96; cc.height=96; cc.getContext('2d').drawImage(c,0,0,96,96); add(cc,CN[k],false) }
@@ -1508,7 +1518,10 @@ async function runChapter(k){
   if(k==='ch2'){ W.running=false; await stageQuiz(); S.done.ch2=true; addItem('net'); addFollower('simba'); startWorld(); await addPiece('quiz');
     return busyTalk([['simba','Prr! Al bunu: balonun ağı. Kaptanı yakalamak için lazım olacak. Ben de geliyorum!'],['daphne','Yukarıdan bir şey daha gördük: kaptan 14 Kasım yaprağını sekiz parçaya bölmüş!'],['daphne','Parçalardan ikisini bulduk. Kalanlar anılarınızda saklı: Ouzoud, çiftlik, Roma, Nice, Kotor ve Viyana.'],['simba','Artık nereye istersen uçarız. Prrr!'],['daphne','Sağ alttaki pembe “Balonla uç” düğmesine bas, haritadan gideceğin yeri seç. Her yerden çalışır!']]) }
   if(k==='ch3') return startChase();
-  if(k==='memo'){ W.running=false; await stageMemo(); startWorld(); await addPiece('roma'); return busyTalk([['narr','Ressam gülümseyip kartpostalların arkasındaki takvim parçasını uzattı.'],['su','Bütün anılarımız bir sehpada... Ne güzel.']]) }
+  if(k==='memo'){ W.running=false; await stageMemo(); startWorld(); await addPiece('roma');
+    await busyTalk([['narr','Ressam gülümseyip kartpostalların arkasındaki takvim parçasını uzattı.'],['narr','Sonra eskiz defterinden bir sayfa koparıp sana uzattı: “Sizi çeşmenin önünde görünce dayanamadım. Bu sizin.”']]);
+    W.busy=true; await showSketch(); W.busy=false; addItem('sketch');
+    return busyTalk([['su',`Bu biz miyiz?! Ben ve ${E}... Elle çizilmiş!`],['daphne','Çok güzel olmuş. Aşağıdaki “Çizimimiz”e dokunarak istediğin zaman bakabilirsin.'],['su','Bütün anılarımız bir sehpada... Bunu çerçeveletiyoruz.']]) }
   if(k==='finale') return startTrap();
 }
 
@@ -1538,6 +1551,36 @@ async function huntUpdate(){
 }
 async function finishHunt(){ W.mode='explore'; actBtn(''); S.done.ch1=true; useItem('flash'); A.extra=null; W.bgKey=null; save(); Sfx.fanfare(); renderHud();
   await busyTalk([['narr','Lambalar birer birer yanıyor...'],['daphne',`Hepsini bulduk! ${CN.luka} da ekipte.`],['daphne','Kaptan 14 Kasım’ı parça parça etmiş. İlk parçayı bulduk!'],['daphne','Sıradaki iz Lambeth Sarayı’nın bahçesinde: orada bir balon ve ağaçta öfkeli biri var...']]) }
+
+/* ---- Rome: the street painter's hand-drawn portrait of Su & Efişkom ---- */
+let SKETCH=null;
+function makeSketch(){
+  if(SKETCH) return SKETCH;
+  const W0=600, H0=720, src=document.createElement('canvas'); src.width=W0; src.height=H0; const prev=g; g=src.getContext('2d');
+  human(175,1140,LOOK.su,{t:0,scale:22.5,noShadow:true}); human(428,1140,LOOK.efe,{t:0,scale:22.5,noShadow:true,flip:true});
+  const sd=g.getImageData(0,0,W0,H0).data, N=W0*H0, lum=new Float32Array(N), al=new Float32Array(N);
+  for(let i=0;i<N;i++){ const a=sd[i*4+3]/255; al[i]=a; lum[i]=a? (sd[i*4]*.3+sd[i*4+1]*.59+sd[i*4+2]*.11)/255 : 1 }
+  const out=document.createElement('canvas'); out.width=W0; out.height=H0; const oc=out.getContext('2d'), od=oc.createImageData(W0,H0), o=od.data, R=rng(21);
+  const paper=[246,239,222], lead=[58,52,48];
+  for(let y=0;y<H0;y++) for(let x=0;x<W0;x++){ const i=y*W0+x;
+    let gx=0, gy=0; if(x>0&&y>0&&x<W0-1&&y<H0-1){ const L=(dx,dy)=>lum[i+dy*W0+dx]*(.35+.65*al[i+dy*W0+dx])+(1-al[i+dy*W0+dx])*1;
+      gx=-L(-1,-1)-2*L(-1,0)-L(-1,1)+L(1,-1)+2*L(1,0)+L(1,1); gy=-L(-1,-1)-2*L(0,-1)-L(1,-1)+L(-1,1)+2*L(0,1)+L(1,1) }
+    const edge=Math.min(1,Math.hypot(gx,gy)*1.15);
+    const tone=al[i]*(1-lum[i]);                        // darker colours read as heavier pencil
+    const hatch=((x+y)%6<2 ? 1 : .35) * (tone>.45 ? 1 : ((x-y+600)%7<2 ? .8 : .2));
+    let dark=Math.min(.9, edge*.95 + tone*.36*hatch);
+    const grain=(R()-.5)*.06; dark=Math.max(0,Math.min(1,dark+grain*(dark>.05?1:.3)));
+    const wash=al[i]*.24, k=i*4;                      // light coloured-pencil wash
+    for(let c=0;c<3;c++){ const base=paper[c]*(1-wash)+sd[k+c]*wash; o[k+c]=base*(1-dark)+lead[c]*dark } o[k+3]=255 }
+  oc.putImageData(od,0,0);
+  g=oc; g.strokeStyle='rgba(58,52,48,.22)'; g.lineWidth=1.2;
+  for(const [cx,cy,rx,ry] of [[175,272,112,134],[428,272,112,134]]){ g.beginPath(); g.ellipse(cx+(R()-.5)*8,cy+(R()-.5)*8,rx,ry,(R()-.5)*.2,0,TAU); g.stroke() }
+  for(let i=0;i<14;i++){ const x=40+R()*520, y=600+R()*100; g.beginPath(); g.moveTo(x,y); g.lineTo(x+30+R()*60,y-10-R()*20); g.stroke() }
+  heart(302,150,30,'rgba(214,80,110,.75)');
+  g.font='600 34px Caveat, cursive'; g.fillStyle='rgba(58,52,48,.85)'; g.textAlign='right'; g.fillText('Roma, 2026',580,52); g.textAlign='left'; g.font='600 30px Caveat, cursive'; g.fillText('per Su & Efişkom',20,50);
+  g=prev; SKETCH=out; return out }
+function showSketch(){ return new Promise(res=>{ const ov=$('#sketchOv'), c=$('#skcv'); c.getContext('2d').drawImage(makeSketch(),0,0); ov.hidden=false; Sfx.item();
+  $('#skOk').onclick=e=>{ e.stopPropagation(); ov.hidden=true; Sfx.blip(1.2); res() } }) }
 
 /* ---- power-ups (shared by the mini-games) ---- */
 const PWR={
@@ -1896,6 +1939,7 @@ function stageBook(){
   const B=CONFIG.book, toms=(S&&S.tom)?S.tom.length:0;
   const pages=[`<div class="bpage"><div class="cover"><div class="t">GİZEM<br>DOSYALARI</div><div class="n">${H} & ${E}</div><div style="color:var(--muted)">2 Nisan 2026’dan beri çözülen vakalar: ${B.length}<br>Bulunan gizli domatesler: ${toms}/${NTOM}</div><canvas id="coverCats" width="480" height="220"></canvas><div style="font-weight:800;animation:blink 1.4s infinite">kaydır &gt;</div></div></div>`];
   B.forEach((p,i)=>pages.push(`<div class="bpage"><div class="file"><div class="ftab">DOSYA #${String(i+1).padStart(2,'0')}</div><div class="fplace">${p.place}</div><div class="fdate">${p.date||''}</div><div class="photo">${p.photo?`<img src="${p.photo}" alt="" draggable="false">`:`<div class="ph">FOTOĞRAF BURAYA</div>`}<div class="sheet"><div class="eyes"><i></i><i></i></div>Çarşafı çek</div><div class="stamp">ÇÖZÜLDÜ</div></div><div class="fcap">${p.caption}</div></div></div>`));
+  if(S && S.inv && S.inv.includes('sketch')) pages.push(`<div class="bpage"><div class="file"><div class="ftab">DOSYA #RESSAM</div><div class="fplace">Roma</div><div class="fdate">Sokak ressamının çizimi</div><div class="photo revealed" style="background:#fbf6ea"><img src="${makeSketch().toDataURL('image/jpeg',.88)}" alt="" draggable="false" style="object-fit:contain"></div><div class="fcap">Aşk Çeşmesi’nin önünde, ikimiz.</div></div></div>`);
   pages.push(`<div class="bpage"><div class="letter"><h3>Son dosya: Kalbim</h3>${CONFIG.letter.replace(/\n/g,'<br>')}<br><br><button class="plink" id="replay" style="font-size:14px">Oyunu baştan oyna</button></div></div>`);
   const tr=$('#btrack'); tr.innerHTML=pages.join(''); show('book');
   const cc=$('#coverCats'); const prev=g; g=cc.getContext('2d'); g.setTransform(2,0,0,2,0,0); cat(50,92,'luka',{t:0,scale:3.2}); cat(120,92,'joker',{t:0,scale:3.2}); cat(190,92,'simba',{t:0,scale:3.2}); g=prev;
