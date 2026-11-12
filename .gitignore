@@ -1,0 +1,5 @@
+# Only the game itself is published
+*
+!index.html
+!README.md
+!.gitignore
