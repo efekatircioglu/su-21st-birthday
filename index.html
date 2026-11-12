@@ -25,11 +25,19 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;background:none}
 @keyframes blink{50%{opacity:.35}}
 @keyframes fadein{from{opacity:0}to{opacity:1}}
 @keyframes pop2{50%{transform:scale(1.18)}}
-#sketchOv{position:absolute;inset:0;z-index:80;background:rgba(10,6,20,.84);display:flex;align-items:center;justify-content:center;padding:18px}
-#sketchOv[hidden]{display:none}
+#picOv,#galOv{position:absolute;inset:0;background:rgba(10,6,20,.86);display:flex;align-items:center;justify-content:center;padding:18px}
+#picOv{z-index:82} #galOv{z-index:81}
+#picOv[hidden],#galOv[hidden]{display:none}
+#picImg{width:100%;max-height:62vh;object-fit:contain;display:block;background:#efe6d2;border:1px solid #e2d6bc}
+.galcard{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:14px;width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;gap:10px;animation:skIn .5s ease-out}
+.galcard h3{margin:0;color:var(--gold);font-size:22px}
+.galgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%}
+.galslot{aspect-ratio:1/2.6;border-radius:8px;overflow:hidden;background:#1d1436;border:2px solid rgba(255,255,255,.18);padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--muted)}
+.galslot img{width:100%;height:100%;object-fit:cover;display:block}
+.galslot b{font-size:30px;color:var(--gold)}
+.galslot small{font-size:10.5px;line-height:1.2;padding:0 4px;text-align:center}
 .skcard{background:#fbf6ea;border-radius:6px;padding:12px 12px 14px;box-shadow:0 18px 40px #000a;transform:rotate(-1.5deg);max-width:360px;width:100%;display:flex;flex-direction:column;align-items:center;gap:6px;animation:skIn .6s ease-out}
 @keyframes skIn{from{transform:rotate(-8deg) scale(.6);opacity:0}to{transform:rotate(-1.5deg) scale(1);opacity:1}}
-#skcv{width:100%;height:auto;display:block;border:1px solid #e2d6bc}
 .skcap{font-family:Caveat,cursive;font-size:27px;color:#3b2a14;line-height:1}
 .skcard .btn{margin-top:4px;font-size:17px;padding:9px 22px}
 @keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
@@ -307,7 +315,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;background:none}
 
   <canvas id="fx"></canvas>
   <div id="fade"></div>
-  <div id="sketchOv" hidden><div class="skcard"><canvas id="skcv" width="600" height="720"></canvas><div class="skcap">Su &amp; Efişkom · Roma</div><button class="btn" id="skOk">Teşekkürler!</button></div></div>
+  <div id="picOv" hidden><div class="skcard"><img id="picImg" alt=""><div class="skcap" id="picCap"></div><button class="btn" id="picOk">Teşekkürler!</button></div></div>
+  <div id="galOv" hidden><div class="galcard"><h3>Fotoğraf şeritlerimiz</h3><div class="galgrid" id="galGrid"></div><button class="btn" id="galOk">Kapat</button></div></div>
   <div id="dlg"><div class="dbox pp"><div id="dav"></div><div id="dname"></div><div id="dtext"></div><div class="dnext" id="dnext"></div><button id="dskip" aria-label="Konuşmayı atla">ATLA &rsaquo;&rsaquo;</button></div></div>
   <div id="card"><div class="k"></div><div class="t"></div><div class="s"></div><div class="tap">devam etmek için dokun</div></div>
 </div>
@@ -645,6 +654,7 @@ function alpaca(sx,sy,an={}){ g.save(); g.translate(sx,sy); softShadow(0,0,9,2.8
 
 /* ---------- item icons (drawn in a 40x40 box centred at 0,0) ---------- */
 const ICON = {
+  photos(x,y){ for(const [dx,r,c] of [[-6,-.2,'#f2b8c8'],[0,0,'#ffffff'],[6,.2,'#f5f5f5']]){ g.save(); g.translate(x+dx,y); g.rotate(r); rrect(-5,-14,10,28,1.2,c); for(let i=0;i<3;i++) rrect(-4,-12.6+i*8.6,8,7.4,.8,['#c84a6a','#6a6a7a','#3a3a4a'][(i+(dx>0?1:0))%3]); g.restore() } },
   sketch(x,y){ rrect(x-13,y-16,26,32,2,'#8a5a2b'); rrect(x-11,y-14,22,28,1,'#fbf6ea'); g.strokeStyle='#4a4038'; g.lineWidth=1.1; g.lineCap='round';
     for(const [cx,hc] of [[-4.5,'#d8ab60'],[4.5,'#2a1d16']]){ circ(x+cx,y-5,3,hc); g.beginPath(); g.arc(x+cx,y-4.6,2.4,0,TAU); g.stroke(); g.beginPath(); g.moveTo(x+cx-4,y+10); g.quadraticCurveTo(x+cx,y-1,x+cx+4,y+10); g.stroke() } heart(x,y+2,5,'#e8607a') },
   flash(x,y){ rrect(x-15,y-5,20,10,3,'#4a4f5a'); rrect(x-15,y-5,20,3,2,'#6a707c'); pathFill([[x+5,y-6],[x+13,y-9],[x+13,y+9],[x+5,y+6]],'#5a606c'); ell(x+13,y,2,9,'#ffe27a'); glow(x+15,y,14,'255,230,140',.35) },
@@ -682,6 +692,7 @@ function portrait(key){
   else if(CATS[key]) cat(60,170,key,{...an,scale:8.6});
   else if(key==='scooby') dog(20,210,{...an,scale:7.2});
   else if(key==='captain') ghost(96,240,{...an,scale:7,kind:'captain',float:0});
+  else if(key==='monster') fuzzMonster(96,178,{...an,scale:5.4});
   g=prev; return c }
 
 /* ---------------- DIALOG (no skipping: each line types out fully before the next) ---------------- */
@@ -690,6 +701,7 @@ const CHAR = {
   daphne:{name:'Daphne',color:'#d8a6ff',p:'daphne',pitch:1.2}, scooby:{name:'Scooby',color:'#e8b070',p:'scooby',pitch:.7},
   luka:{name:CN.luka,color:'#d0d8e0',p:'luka',pitch:1.6}, joker:{name:CN.joker,color:'#ff8ab0',p:'joker',pitch:1.1},
   simba:{name:CN.simba,color:'#ffb85a',p:'simba',pitch:1.4}, ghost:{name:'Hayalet Kaptan',color:'#9be15d',p:'captain',pitch:.5},
+  monster:{name:'Canavar',color:'#7cc4ff',p:'monster',pitch:.55},
 };
 const PORTRAITS={}; const getPortrait=k=>PORTRAITS[k]||(PORTRAITS[k]=portrait(k));
 let dialogOpen=false;
@@ -767,7 +779,7 @@ function parliament(plane0,u0,s=1){ const c='#1d1640'; fR(plane0,u0,0,u0+6*s,26*
   const bu=u0-.5*s; fR(plane0,bu,0,bu+.7*s,62*s,'#241c4a'); fR(plane0,bu-.06*s,52*s,bu+.76*s,64*s,'#2b2257'); const [cx,cy]=P(plane0,bu+.35*s,58*s); glow(cx,cy,16*s,'255,233,168',.35); circ(cx,cy,2.6*s,'#ffe9a8'); const [tx,ty]=P(plane0,bu+.35*s,64*s); pathFill([[tx-5*s,ty+2*s],[tx,ty-16*s],[tx+5*s,ty-2*s]],'#241c4a') }
 
 /* ---------- state ---------- */
-const ITEMS = { flash:['Fener','flash'], toblerone:['Toblerone','toblerone'], fish:['Balık','fish'], net:['Ağ','net'], plate:['Keçi peyniri ve ekmek','plate'], bananas:['Maymun yemi','treats'], hay:['Saman','hay'], carrot:['Havuç','carrot'], corn:['Mısır','corn'], lettuce:['Marul','lettuce'], sketch:['Çizimimiz','sketch'] };
+const ITEMS = { flash:['Fener','flash'], toblerone:['Toblerone','toblerone'], fish:['Balık','fish'], net:['Ağ','net'], plate:['Keçi peyniri ve ekmek','plate'], bananas:['Maymun yemi','treats'], hay:['Saman','hay'], carrot:['Havuç','carrot'], corn:['Mısır','corn'], lettuce:['Marul','lettuce'], sketch:['Karikatürümüz','sketch'] };
 const TOMS = { pub:[7,8], river:[10,4], park:[0,3], embank:[1,3], deck:[9,6], ouzoud:[9,8], farm:[0,7], roma:[8,8], nice:[10,5], kotor:[1,6], viyana:[0,7] };
 const NTOM = Object.keys(TOMS).length;
 let S=null;
@@ -835,6 +847,7 @@ const AREAS = {
     },
     deco(){ for(const [x,y] of [[5.5,2.5],[6.3,6.5]]){ const [sx,sy]=P(x,y); glow(sx,sy,50,'255,200,120',.14) } },
     ents:[
+      photoEnt('s1',3,7),
       ent({id:'bar', blocks:()=>[[1,1],[1,2],[1,3],[1,4],[1,5]], depth:8, draw(){ box3(1,1,1,5,22,'#7a4a2a',0,'#5a3420'); box(.95,.95,1.1,5.1,2,'#c9a441','#b08a30','#9a7a28',22); for(const y of [1.7,2.9,4.1]){ const [sx,sy]=P(1.5,y,24); rrect(sx-.8,sy-8,1.6,8,.8,'#d9a441'); rrect(sx-2,sy-9.5,4,2,1,'#2a2a2a'); circ(sx,sy-10.2,.9,'#d61f3c') } for(const y of [3.5,4.6]){ const [sx,sy]=P(1.6,y,24); rrect(sx-1.6,sy-5,3.2,5,.8,'rgba(255,220,120,.85)'); rrect(sx-1.6,sy-5,3.2,1.4,.6,'#fff') } }}),
       ent({id:'stool1', blocks:()=>[[2,2]], depth:5, draw(){ cyl(2.5,2.5,.18,10,'#5a3420'); cyl(2.5,2.5,.26,2,'#a83a3a',10) }}),
       ent({id:'stool2', blocks:()=>[[2,4]], depth:7, draw(){ cyl(2.5,4.5,.18,10,'#5a3420'); cyl(2.5,4.5,.26,2,'#a83a3a',10) }}),
@@ -868,6 +881,7 @@ const AREAS = {
     },
     anim(t){ shimmer(-6,0,0,6,7,t,46) },
     ents:[
+      photoEnt('s3',8,3,()=>S.done.ch1),
       ent({id:'lamp1', blocks:()=>[[0,1]], depth:2, draw(){ lamp(.5,1.5,40,S.done.ch1) }}),
       ent({id:'lamp2', blocks:()=>[[0,4]], depth:5, draw(){ lamp(.5,4.5,40,S.done.ch1) }}),
       ent({id:'sign', use:[6,1], flat:true, show:()=>S.done.ch1, draw(){ const [sx,sy]=P(6,0,42); this.hit=[sx-26,sy-12,52,24] },
@@ -991,6 +1005,14 @@ const AREAS = {
     },
     anim(t){},
     ents:[
+      ent({id:'geese', pt:[8.6,7.6], blocks:()=>(window.GEESE||[[8,8],[9,7]]), use:[7,7], depth:16.5, attn:()=>!gotPhotos().includes('s2'),
+        draw(){ const G=window.GEESE||[[8,8],[9,7]]; const [ax,ay]=P(G[0][0]+.5,G[0][1]+.5), [bx,by]=P(G[1][0]+.5,G[1][1]+.5);
+          goose(ax+5,ay,{t:W.t,seed:0}); goose(bx-5,by,{t:W.t,seed:2,flip:true});
+          g.font='600 6px Caveat, cursive'; g.textAlign='center'; g.lineWidth=1.6; g.strokeStyle='rgba(40,30,20,.7)'; for(const [x,y,n] of [[ax+3,ay,'Efe'],[bx-3,by,'Su']]){ g.strokeText(n,x,y+5.6); g.fillStyle='#fff6e6'; g.fillText(n,x,y+5.6) }
+          const x0=Math.min(ax,bx)-10, x1=Math.max(ax,bx)+10; this.hit=[x0,Math.min(ay,by)-26,x1-x0,32] },
+        async tap(){ if(gotPhotos().includes('s2')) return busyTalk([['narr','Kaz Efe ile Kaz Su hâlâ gaga gagaya bakışıyor. Hiç sıkılmıyorlar.']]);
+          await busyTalk([['narr','İki beyaz kaz gaga gagaya bakışıyor. Ayaklarının dibinde küçük harflerle yazıyor: “Efe” ve “Su”.'],['su','Bunlar evdeki tablomuzdaki kazlar! Kaz Efe ve Kaz Su!'],['narr','Kaz Su gagasıyla bir fotoğraf şeridini sana doğru itiyor. Kaz Efe gururla bakıyor.']]);
+          return givePhoto('s2') } }),
       ...['hay','carrot','corn','lettuce'].map((f,i)=>ent({id:'crate-'+f, blocks:()=>[[1+i*2,1]], use:[1+i*2,2], depth:3+i*2, attn:()=>!S.farm.done && !Object.values(S.farm.fed).length && i===0 && !S.farm.carry,
         draw(){ if(f==='hay') box3(1+i*2+.1,1.15,.8,.7,10,'#e8c35a',0,'#f2d27a'); else { box3(1+i*2+.1,1.15,.8,.7,9,'#9a6a3a'); } const [sx,sy]=P(1+i*2+.5,1.5,f==='hay'?10:9); g.save(); g.translate(sx,sy-4); g.scale(.36,.36); ICON[f](0,0); g.restore() },
         tap(){ if(S.farm.done) return busyTalk([['narr','Hayvanların karnı tok.']]); S.farm.carry=f; save(); Sfx.item(); renderInv(f); toast(`${ITEMS[f][0]} aldın`) } })),
@@ -1099,6 +1121,11 @@ const AREAS = {
     deco(){ poly([P(1,3.2),P(10,3.2),P(10,4.8),P(1,4.8)],'rgba(140,20,40,.55)'); for(const [x,y] of [[1,3.2],[10,3.2]]){} },
     anim(t){ for(const pz of PAINTINGS) if(pz.live){ const [u0,u1,v0,v1]=pz.r; pic(pz.plane,u0,u1,v0,v1,()=>pz.live(t)) } },
     ents:[
+      ent({id:'monster', pt:[6.5,6.5], attnAt:[6.5,6.5,52], blocks:()=>[[6,6]], use:[6,7], depth:13, attn:()=>!gotPhotos().includes('s4'),
+        draw(){ const [sx,sy]=P(6.5,6.5); fuzzMonster(sx,sy,{t:W.t,scale:1.45}); this.hit=[sx-17,sy-46,34,48] },
+        async tap(){ if(gotPhotos().includes('s4')) return busyTalk([['monster','Grr! (Kocaman sarı gözleriyle sana bakıp sırıtıyor.)'],['su','Sen de bizim evin canavarısın. Tamam, korkmuyorum artık.']]);
+          await busyTalk([['narr','Tablolardan birinden mavi, tüylü bir canavar fırlıyor! Tek boynuz, kocaman sarı gözler, sivri dişler...'],['monster','GRRRAAAH!'],['su','Aaa! ...Dur bir dakika. Sen bizim evdeki tablodaki canavarsın!'],['monster','Grr... evet. Burada her şey dönüyor, ben de saklanıyordum.'],['monster','Kaptan kaçarken bunu düşürdü. Zebralı bir şey, Schönbrunn yazıyor. Senin olmalı.']]);
+          return givePhoto('s4') } }),
       ...PAINTINGS.map(pz=>ent({id:'pz-'+pz.id, use:pz.use, flat:true, attnAt: pz.plane==='y' ? [(pz.r[0]+pz.r[1])/2,0,pz.r[3]+8] : [0,(pz.r[0]+pz.r[1])/2,pz.r[3]+8],
         draw(){ const [u0,u1,v0,v1]=pz.r; const pts=pz.plane==='y'?[P(u0,0,v0),P(u1,0,v0),P(u0,0,v1),P(u1,0,v1)]:[P(0,u0,v0),P(0,u1,v0),P(0,u0,v1),P(0,u1,v1)]; const xs=pts.map(q=>q[0]), ys=pts.map(q=>q[1]); this.hit=[Math.min(...xs),Math.min(...ys),Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys)] },
         attn:()=>pz.id==='kiss' && S.vi.water && !S.pieces.includes('viyana'),
@@ -1503,6 +1530,7 @@ function renderInv(fresh){
   const add=(icon,label,isNew,fn)=>{ const d=document.createElement('div'); d.className='slot pp'+(isNew?' new':''); d.appendChild(icon); d.append(label); if(fn){ d.style.pointerEvents='auto'; d.style.cursor='pointer'; d.onclick=e=>{ e.stopPropagation(); if(!W.busy && !dialogOpen) fn() } } inv.appendChild(d) };
   for(const k of S.inv) add(iconCanvas(ITEMS[k][1]),ITEMS[k][0],k===fresh,k==='sketch'?()=>showSketch():null);
   if(S.banan>0) add(iconCanvas('treats'),`Maymun yemi ×${S.banan}`,fresh==='bananas');
+  if(gotPhotos().length) add(iconCanvas('photos'),`Fotoğraflar ${gotPhotos().length}/4`,fresh==='photos',()=>showGallery());
   if(S.area==='farm' && S.farm.carry) add(iconCanvas(S.farm.carry),`Elinde: ${ITEMS[S.farm.carry][0]}`,fresh===S.farm.carry);
   for(const k of S.fol.filter(k=>k!=='scooby')){ const c=getPortrait(k); const cc=document.createElement('canvas'); cc.width=96; cc.height=96; cc.getContext('2d').drawImage(c,0,0,96,96); add(cc,CN[k],false) }
   renderHud();
@@ -1519,9 +1547,9 @@ async function runChapter(k){
     return busyTalk([['simba','Prr! Al bunu: balonun ağı. Kaptanı yakalamak için lazım olacak. Ben de geliyorum!'],['daphne','Yukarıdan bir şey daha gördük: kaptan 14 Kasım yaprağını sekiz parçaya bölmüş!'],['daphne','Parçalardan ikisini bulduk. Kalanlar anılarınızda saklı: Ouzoud, çiftlik, Roma, Nice, Kotor ve Viyana.'],['simba','Artık nereye istersen uçarız. Prrr!'],['daphne','Sağ alttaki pembe “Balonla uç” düğmesine bas, haritadan gideceğin yeri seç. Her yerden çalışır!']]) }
   if(k==='ch3') return startChase();
   if(k==='memo'){ W.running=false; await stageMemo(); startWorld(); await addPiece('roma');
-    await busyTalk([['narr','Ressam gülümseyip kartpostalların arkasındaki takvim parçasını uzattı.'],['narr','Sonra eskiz defterinden bir sayfa koparıp sana uzattı: “Sizi çeşmenin önünde görünce dayanamadım. Bu sizin.”']]);
+    await busyTalk([['narr','Ressam gülümseyip kartpostalların arkasındaki takvim parçasını uzattı.'],['narr','Sonra kocaman bir kâğıdı açıp sana uzattı: “8 Haziran’da çizdiğim karikatürünüz! Kolezyum’u da köşeye ekledim.”']]);
     W.busy=true; await showSketch(); W.busy=false; addItem('sketch');
-    return busyTalk([['su',`Bu biz miyiz?! Ben ve ${E}... Elle çizilmiş!`],['daphne','Çok güzel olmuş. Aşağıdaki “Çizimimiz”e dokunarak istediğin zaman bakabilirsin.'],['su','Bütün anılarımız bir sehpada... Bunu çerçeveletiyoruz.']]) }
+    return busyTalk([['su',`Bizim karikatürümüz! ${E}’un o kocaman gülüşü ve başparmağı...`],['daphne','Aşağıdaki “Karikatürümüz”e dokunarak istediğin zaman bakabilirsin.'],['su','Bütün anılarımız bir sehpada... Bu da evimizin duvarına.']]) }
   if(k==='finale') return startTrap();
 }
 
@@ -1552,35 +1580,55 @@ async function huntUpdate(){
 async function finishHunt(){ W.mode='explore'; actBtn(''); S.done.ch1=true; useItem('flash'); A.extra=null; W.bgKey=null; save(); Sfx.fanfare(); renderHud();
   await busyTalk([['narr','Lambalar birer birer yanıyor...'],['daphne',`Hepsini bulduk! ${CN.luka} da ekipte.`],['daphne','Kaptan 14 Kasım’ı parça parça etmiş. İlk parçayı bulduk!'],['daphne','Sıradaki iz Lambeth Sarayı’nın bahçesinde: orada bir balon ve ağaçta öfkeli biri var...']]) }
 
-/* ---- Rome: the street painter's hand-drawn portrait of Su & Efişkom ---- */
-let SKETCH=null;
-function makeSketch(){
-  if(SKETCH) return SKETCH;
-  const W0=600, H0=720, src=document.createElement('canvas'); src.width=W0; src.height=H0; const prev=g; g=src.getContext('2d');
-  human(175,1140,LOOK.su,{t:0,scale:22.5,noShadow:true}); human(428,1140,LOOK.efe,{t:0,scale:22.5,noShadow:true,flip:true});
-  const sd=g.getImageData(0,0,W0,H0).data, N=W0*H0, lum=new Float32Array(N), al=new Float32Array(N);
-  for(let i=0;i<N;i++){ const a=sd[i*4+3]/255; al[i]=a; lum[i]=a? (sd[i*4]*.3+sd[i*4+1]*.59+sd[i*4+2]*.11)/255 : 1 }
-  const out=document.createElement('canvas'); out.width=W0; out.height=H0; const oc=out.getContext('2d'), od=oc.createImageData(W0,H0), o=od.data, R=rng(21);
-  const paper=[246,239,222], lead=[58,52,48];
-  for(let y=0;y<H0;y++) for(let x=0;x<W0;x++){ const i=y*W0+x;
-    let gx=0, gy=0; if(x>0&&y>0&&x<W0-1&&y<H0-1){ const L=(dx,dy)=>lum[i+dy*W0+dx]*(.35+.65*al[i+dy*W0+dx])+(1-al[i+dy*W0+dx])*1;
-      gx=-L(-1,-1)-2*L(-1,0)-L(-1,1)+L(1,-1)+2*L(1,0)+L(1,1); gy=-L(-1,-1)-2*L(0,-1)-L(1,-1)+L(-1,1)+2*L(0,1)+L(1,1) }
-    const edge=Math.min(1,Math.hypot(gx,gy)*1.15);
-    const tone=al[i]*(1-lum[i]);                        // darker colours read as heavier pencil
-    const hatch=((x+y)%6<2 ? 1 : .35) * (tone>.45 ? 1 : ((x-y+600)%7<2 ? .8 : .2));
-    let dark=Math.min(.9, edge*.95 + tone*.36*hatch);
-    const grain=(R()-.5)*.06; dark=Math.max(0,Math.min(1,dark+grain*(dark>.05?1:.3)));
-    const wash=al[i]*.24, k=i*4;                      // light coloured-pencil wash
-    for(let c=0;c<3;c++){ const base=paper[c]*(1-wash)+sd[k+c]*wash; o[k+c]=base*(1-dark)+lead[c]*dark } o[k+3]=255 }
-  oc.putImageData(od,0,0);
-  g=oc; g.strokeStyle='rgba(58,52,48,.22)'; g.lineWidth=1.2;
-  for(const [cx,cy,rx,ry] of [[175,272,112,134],[428,272,112,134]]){ g.beginPath(); g.ellipse(cx+(R()-.5)*8,cy+(R()-.5)*8,rx,ry,(R()-.5)*.2,0,TAU); g.stroke() }
-  for(let i=0;i<14;i++){ const x=40+R()*520, y=600+R()*100; g.beginPath(); g.moveTo(x,y); g.lineTo(x+30+R()*60,y-10-R()*20); g.stroke() }
-  heart(302,150,30,'rgba(214,80,110,.75)');
-  g.font='600 34px Caveat, cursive'; g.fillStyle='rgba(58,52,48,.85)'; g.textAlign='right'; g.fillText('Roma, 2026',580,52); g.textAlign='left'; g.font='600 30px Caveat, cursive'; g.fillText('per Su & Efişkom',20,50);
-  g=prev; SKETCH=out; return out }
-function showSketch(){ return new Promise(res=>{ const ov=$('#sketchOv'), c=$('#skcv'); c.getContext('2d').drawImage(makeSketch(),0,0); ov.hidden=false; Sfx.item();
-  $('#skOk').onclick=e=>{ e.stopPropagation(); ov.hidden=true; Sfx.blip(1.2); res() } }) }
+/* ---- real pictures: the Rome caricature and four photo-booth strips ---- */
+const CARICATURE='assets/karikatur-roma.jpg';
+const PHOTOS=[
+  {id:'s1', src:'assets/serit-1.jpg', name:'Acı biberli kabin', hint:'Dover Castle’da, masaların arasında', line:'Bu kabinde makine tepedeydi, hep yukarı baktık!'},
+  {id:'s2', src:'assets/serit-2.jpg', name:'Kalpli şerit', hint:'Çiftlikte, iki beyaz kazda', line:'XOXO çıkartmalı şeridimiz! Son karede yine öpüşüyoruz...'},
+  {id:'s3', src:'assets/serit-3.jpg', name:'Photo Booth şeridi', hint:'Kalpli Duvar’ın orada, nehir kıyısında', line:'Siyah beyaz Photo Booth şeridimiz! İlk karede bile öpüşmüşüz.'},
+  {id:'s4', src:'assets/serit-4.jpg', name:'Schönbrunn şeridi', hint:'Viyana müzesindeki canavarda', line:'Viyana hayvanat bahçesindeki zebralı kabin! Hâlâ duvarımızda asılı.'},
+];
+[CARICATURE,...PHOTOS.map(p=>p.src)].forEach(src=>{ const im=new Image(); im.src=src });
+const gotPhotos=()=>(S.photos=S.photos||[]);
+function showPic(src,cap,btn='Teşekkürler!'){ return new Promise(res=>{ const ov=$('#picOv'); $('#picImg').src=src; $('#picCap').textContent=cap; $('#picOk').textContent=btn; ov.hidden=false; Sfx.item();
+  $('#picOk').onclick=e=>{ e.stopPropagation(); ov.hidden=true; Sfx.blip(1.2); res() } }) }
+function showSketch(){ return showPic(CARICATURE,'Su & Efişkom · Roma, 8 Haziran 2026') }
+async function givePhoto(id){ const p=PHOTOS.find(q=>q.id===id), got=gotPhotos(); if(!p||got.includes(id)) return; got.push(id); save();
+  W.busy=true; await showPic(p.src,`${p.name} · ${got.length}/4`,'Albüme ekle'); W.busy=false; renderInv('photos');
+  await busyTalk([['su',p.line], got.length===4 ? ['daphne','Dört fotoğraf şeridinin hepsini buldun! Hepsi sondaki albümde de olacak.'] : ['daphne',`Fotoğraf şeridi ${got.length}/4. Aşağıdaki “Fotoğraflar”a dokunup bakabilirsin.`]]) }
+function showGallery(){ const grid=$('#galGrid'); grid.innerHTML=''; const got=gotPhotos();
+  for(const p of PHOTOS){ const d=document.createElement('button'); const have=got.includes(p.id); d.className='galslot'+(have?'':' locked');
+    if(have){ const im=document.createElement('img'); im.src=p.src; im.alt=''; d.appendChild(im); d.onclick=e=>{ e.stopPropagation(); showPic(p.src,p.name,'Kapat') } }
+    else d.innerHTML=`<b>?</b><small>${p.hint}</small>`; grid.appendChild(d) }
+  $('#galOv').hidden=false; Sfx.blip(1.3); $('#galOk').onclick=e=>{ e.stopPropagation(); $('#galOv').hidden=true } }
+// a photo strip lying on the ground, with a glow and an attention marker until picked up
+function photoEnt(id,x,y,cond=()=>true){ return ent({ id:'photo-'+id, pt:[x+.5,y+.5], use:[x,y], depth:x+y+1, show:()=>!!S && cond() && !gotPhotos().includes(id), attn:()=>true,
+  draw(){ const [sx,sy]=P(x+.5,y+.5), b=Math.sin(W.t*3+x)*1.2; glow(sx,sy-7+b,15,'255,225,150',.6); softShadow(sx,sy,5,1.6,.25);
+    g.save(); g.translate(sx,sy-8+b); g.rotate(-.12); rrect(-4.2,-8.5,8.4,17,1,'#ffffff'); for(let i=0;i<3;i++) rrect(-3.2,-7.4+i*5.1,6.4,4.3,.6,['#c84a6a','#7a7a8a','#4a4a5a'][i]); g.restore() },
+  tap(){ return givePhoto(id) } }) }
+/* the white geese from the painting at home ("Efe" and "Su"), and the fuzzy blue monster */
+function goose(sx,sy,an={}){ const t=an.t||0, sw=Math.sin(t*1.5+(an.seed||0))*.45;
+  g.save(); g.translate(sx,sy); if(an.flip) g.scale(-1,1); softShadow(0,0,7,2.2,.25);
+  for(const [lx,ph] of [[-1.6,0],[1.3,1.6]]){ const st=an.walk?Math.sin(t*8+ph):0; line(lx,-5.2,lx+.3+st*.4,-.7,.8,'#f08a2a'); pathFill([[lx-1.3+st*.4,0],[lx+2.3+st*.4,0],[lx+.4+st*.4,-1.3]],'#f08a2a') }
+  pathFill([[-7.4,-9.6],[-10,-12.4],[-6.2,-11.8]],'#eef0f5');
+  const gr=g.createLinearGradient(0,-14,0,-4); gr.addColorStop(0,'#ffffff'); gr.addColorStop(1,'#d3d8e2'); g.fillStyle=gr; g.beginPath(); g.ellipse(-1.4,-8.6,6.8,4.6,-.12,0,TAU); g.fill();
+  g.strokeStyle='rgba(110,120,140,.45)'; g.lineWidth=.32; for(let i=0;i<3;i++){ g.beginPath(); g.arc(-2.8+i*1.5,-8.8+i*.3,2.7-i*.3,.25,2.3); g.stroke() }
+  g.strokeStyle='#f3f5f9'; g.lineWidth=2.6; g.lineCap='round'; g.beginPath(); g.moveTo(3.2,-10.6); g.bezierCurveTo(5,-14,2.2,-17.2,3.3+sw,-21.2); g.stroke();
+  ell(4.1+sw,-21.6,2.15,1.75,'#fbfcff'); pathFill([[5.7+sw,-22.3],[9.2+sw,-21.4],[5.7+sw,-20.5]],'#f07a1a'); line(5.9+sw,-21.4,8.6+sw,-21.4,.18,'rgba(120,50,0,.5)'); circ(4.6+sw,-22.2,.42,'#1a1a22');
+  g.restore() }
+function fuzzMonster(sx,sy,an={}){ const t=an.t||0, R=rng(9), bob=Math.abs(Math.sin(t*3))*1.2;
+  g.save(); g.translate(sx,sy); if(an.scale) g.scale(an.scale,an.scale); if(!an.noShadow) softShadow(0,0,8,2.5,.3); g.translate(0,-bob);
+  for(let i=0;i<16;i++){ const a=R()*TAU, r=12+R()*6; circ(Math.cos(a)*r,-12+Math.sin(a)*r*.9,.4+R()*.4, R()<.5?'#e07a3a':'#7ab0d0') }
+  for(const s of [-1,1]){ ell(s*2.8,-.5,2.3,.9,'#c8702e'); line(s*2.5,-3.4,s*2.7,-.8,1.1,'#c8702e');
+    g.strokeStyle='#b8642a'; g.lineWidth=.9; g.lineCap='round'; const hy=-5+Math.sin(t*4+s)*.7; g.beginPath(); g.moveTo(s*7.4,-11.5); g.quadraticCurveTo(s*10.6,-9,s*10.3,hy); g.stroke();
+    for(const f of [-1,0,1]) line(s*10.3,hy,s*(10.3+.9)+f*.5,hy+1.3+Math.abs(f)*.2,.45,'#b8642a') }
+  g.fillStyle='#6a4a3e'; g.beginPath(); g.moveTo(-1.8,-19.6); g.quadraticCurveTo(-.8,-27,2.4,-30); g.quadraticCurveTo(.4,-25.6,1.9,-19.8); g.closePath(); g.fill(); for(let i=0;i<3;i++) line(-1.3+i*.6,-21.4-i*2.2,1.3+i*.3,-21.9-i*2,.3,'#3e2a22');
+  const gr=g.createRadialGradient(-2.5,-15.5,1,0,-12,10.5); gr.addColorStop(0,'#a8d0e6'); gr.addColorStop(1,'#33629a'); g.fillStyle=gr; g.beginPath(); for(let i=0;i<=44;i++){ const a=i/44*TAU, r=8.7+(i%2?1.1:0)+Math.sin(t*6+i)*.15; g.lineTo(Math.cos(a)*r,-12+Math.sin(a)*r) } g.closePath(); g.fill();
+  for(let i=0;i<80;i++){ const a=R()*TAU, r=Math.sqrt(R())*8.2; circ(Math.cos(a)*r,-12+Math.sin(a)*r,.3+R()*.35,['#22457a','#5a3a90','#d4ebf6','#4a8ab8','#2f5f9a'][R()*5|0]) }
+  for(const [ex,er] of [[-3,2.8],[2.7,2.35]]){ circ(ex,-14.2,er+.4,'#1a1a22'); circ(ex,-14.2,er,'#f7c62a'); circ(ex,-14.2,er*.66,'#fff2b8'); circ(ex+.25,-14,er*.34,'#111'); circ(ex-.5,-14.9,er*.12,'#fff') }
+  g.fillStyle='#1a1a22'; g.beginPath(); g.moveTo(-4.8,-9.7); g.quadraticCurveTo(0,-6.2,5.2,-10); g.quadraticCurveTo(0,-8.4,-4.8,-9.7); g.fill();
+  for(let i=0;i<5;i++){ const x=-3.4+i*1.75, y0=-9.25+Math.abs(x-.2)*.03; pathFill([[x-.65,y0],[x+.65,y0],[x+.05,y0+1.7]],'#ffffff') }
+  g.restore() }
 
 /* ---- power-ups (shared by the mini-games) ---- */
 const PWR={
@@ -1939,7 +1987,8 @@ function stageBook(){
   const B=CONFIG.book, toms=(S&&S.tom)?S.tom.length:0;
   const pages=[`<div class="bpage"><div class="cover"><div class="t">GİZEM<br>DOSYALARI</div><div class="n">${H} & ${E}</div><div style="color:var(--muted)">2 Nisan 2026’dan beri çözülen vakalar: ${B.length}<br>Bulunan gizli domatesler: ${toms}/${NTOM}</div><canvas id="coverCats" width="480" height="220"></canvas><div style="font-weight:800;animation:blink 1.4s infinite">kaydır &gt;</div></div></div>`];
   B.forEach((p,i)=>pages.push(`<div class="bpage"><div class="file"><div class="ftab">DOSYA #${String(i+1).padStart(2,'0')}</div><div class="fplace">${p.place}</div><div class="fdate">${p.date||''}</div><div class="photo">${p.photo?`<img src="${p.photo}" alt="" draggable="false">`:`<div class="ph">FOTOĞRAF BURAYA</div>`}<div class="sheet"><div class="eyes"><i></i><i></i></div>Çarşafı çek</div><div class="stamp">ÇÖZÜLDÜ</div></div><div class="fcap">${p.caption}</div></div></div>`));
-  if(S && S.inv && S.inv.includes('sketch')) pages.push(`<div class="bpage"><div class="file"><div class="ftab">DOSYA #RESSAM</div><div class="fplace">Roma</div><div class="fdate">Sokak ressamının çizimi</div><div class="photo revealed" style="background:#fbf6ea"><img src="${makeSketch().toDataURL('image/jpeg',.88)}" alt="" draggable="false" style="object-fit:contain"></div><div class="fcap">Aşk Çeşmesi’nin önünde, ikimiz.</div></div></div>`);
+  if(S && gotPhotos().length) pages.push(`<div class="bpage"><div class="file"><div class="ftab">DOSYA #KABİN</div><div class="fplace">Fotoğraf kabinlerimiz</div><div class="fdate">${gotPhotos().length}/4 şerit bulundu</div><div style="flex:1;min-height:0;display:flex;gap:6px;align-items:stretch;margin-top:8px">${PHOTOS.filter(p=>gotPhotos().includes(p.id)).map((p,i)=>`<img src="${p.src}" alt="" draggable="false" style="flex:1;min-width:0;height:100%;object-fit:contain;transform:rotate(${(i%2?1.5:-1.5)}deg);filter:drop-shadow(0 3px 5px #0006)">`).join('')}</div><div class="fcap">Bütün kabinler, bütün öpücükler.</div></div></div>`);
+  if(S && S.inv && S.inv.includes('sketch')) pages.push(`<div class="bpage"><div class="file"><div class="ftab">DOSYA #RESSAM</div><div class="fplace">Roma</div><div class="fdate">Sokak ressamının karikatürü</div><div class="photo revealed" style="background:#efe6d2"><img src="${CARICATURE}" alt="" draggable="false" style="object-fit:contain"></div><div class="fcap">Roma, 8 Haziran 2026. Karikatürümüz.</div></div></div>`);
   pages.push(`<div class="bpage"><div class="letter"><h3>Son dosya: Kalbim</h3>${CONFIG.letter.replace(/\n/g,'<br>')}<br><br><button class="plink" id="replay" style="font-size:14px">Oyunu baştan oyna</button></div></div>`);
   const tr=$('#btrack'); tr.innerHTML=pages.join(''); show('book');
   const cc=$('#coverCats'); const prev=g; g=cc.getContext('2d'); g.setTransform(2,0,0,2,0,0); cat(50,92,'luka',{t:0,scale:3.2}); cat(120,92,'joker',{t:0,scale:3.2}); cat(190,92,'simba',{t:0,scale:3.2}); g=prev;

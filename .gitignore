@@ -3,4 +3,6 @@
 !index.html
 !README.md
 !.gitignore
+!assets/
+!assets/*.jpg
 .vercel
