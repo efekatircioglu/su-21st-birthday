@@ -93,11 +93,6 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;background:none}
 .slot canvas{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.08)}
 .slot.new{animation:pop2 .6s}
 #actbtn{pointer-events:auto}
-#flyBtn{position:absolute;z-index:7;right:10px;bottom:calc(env(safe-area-inset-bottom) + 66px);font-size:17px;padding:10px 18px 10px 14px;display:flex;align-items:center;gap:9px;background:linear-gradient(#ff8fb0,#ff5d8f);color:#fff;box-shadow:0 4px 0 #b8325e,0 0 22px rgba(255,93,143,.6)}
-#flyBtn[hidden]{display:none}
-#flyBtn .bic{position:relative;width:18px;height:25px;flex:none}
-#flyBtn .bic::before{content:'';position:absolute;left:0;top:0;width:18px;height:18px;border-radius:50% 50% 45% 45%;background:repeating-linear-gradient(90deg,#ffd23f 0 4.5px,#fff3c4 4.5px 9px);box-shadow:inset -3px -2px 0 rgba(0,0,0,.12)}
-#flyBtn .bic::after{content:'';position:absolute;left:6px;bottom:0;width:6px;height:5px;border-radius:1.5px;background:#8a5a2b}
 #actbtn[hidden]{display:none}
 #banner{position:absolute;z-index:7;left:50%;top:24%;transform:translateX(-50%);padding:8px 18px;font-size:19px;font-weight:800;color:var(--gold);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .5s}
 #banner.on{opacity:1}
@@ -198,6 +193,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;background:none}
 .fdate{font-family:'Courier Prime',monospace;font-size:13px;opacity:.7;margin-bottom:10px}
 .photo{position:relative;flex:1;min-height:0;border:7px solid #fff;box-shadow:0 4px 12px #0005;background:#2a2238;overflow:hidden;transform:rotate(1deg)}
 .photo img{width:100%;height:100%;object-fit:cover;display:block}
+.photo img.bgb{position:absolute;inset:0;filter:blur(14px) brightness(.65);transform:scale(1.2)}
+.photo img.fg{position:relative;object-fit:contain}
 .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;background:linear-gradient(135deg,#5a3a8f,#ff9f1c)}
 .sheet{position:absolute;inset:-4px;z-index:2;background:radial-gradient(circle at 50% 30%,#fff,#dfe3f5);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#3a2a5c;font-weight:800;transition:transform .55s cubic-bezier(.5,-0.3,.7,1),opacity .55s;touch-action:none}
 .sheet .eyes{display:flex;gap:26px;margin-bottom:12px}
@@ -242,7 +239,6 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;background:none}
     </div>
     <div id="chaseHud" class="pp" hidden></div>
     <div id="banner" class="pp"></div>
-    <button class="btn" id="flyBtn" hidden><span class="bic"></span>Balonla uç</button>
     <div id="wbar">
       <button class="btn" id="actbtn" hidden></button>
       <div id="inv"></div>
@@ -345,12 +341,27 @@ const CONFIG = {
 
   // Finaldeki fotoğraf kitabı. photo: 'photos/01.jpg' gibi bir dosya yolu (boşsa yer tutucu görünür)
   book: [
+    // Fotoğraflı sayfalar albümde görünür. Fotoğrafı boş ('') olan sayfalar fotoğraf eklenene kadar gizli kalır.
+    { place: 'Londra geceleri', date: 'Londra', caption: 'Gece yürüyüşleri, sokak lambaları ve biz.', photo: 'assets/album/gece.jpg' },
+    { place: 'Thames · Parlamento', date: 'Londra', caption: 'Kırmızı elbise, lacivert gömlek ve arkada koca bir saray.', photo: 'assets/album/thames.jpg' },
+    { place: 'Otobüste', date: '', caption: 'Otobüs yolculukları bile seninle güzel.', photo: 'assets/album/otobus.jpg' },
+    { place: 'Spor salonu', date: '', caption: 'Antrenman bitti, sarılma başladı.', photo: 'assets/album/spor.jpg' },
+    { place: 'Rapunzel ve Flynn', date: '', caption: 'Tava her zaman Rapunzel’de.', photo: 'assets/album/rapunzel.jpg' },
+    { place: 'Akşam yemeği', date: '', caption: 'Bir şişe şarap, iki kadeh, bir sürü kahkaha.', photo: 'assets/album/aksam-yemegi.jpg' },
+    { place: 'Kafede', date: '', caption: 'Yanağımda yıldız, yanımda sen.', photo: 'assets/album/kafe.jpg' },
+    { place: 'Baş başa', date: '', caption: 'Dünya ters dönse de yanındayım.', photo: 'assets/album/basbasa.jpg' },
+    { place: 'Kış yürüyüşü', date: '', caption: 'Soğuk, rüzgâr, minicik bir köpek ve sen.', photo: 'assets/album/kis.jpg' },
+    { place: 'Penguen', date: '', caption: '“Please don’t touch.” Dokunduk.', photo: 'assets/album/penguen.jpg' },
+    { place: 'Deniz kenarı', date: '', caption: 'Kocaman bir kahkaha, kafamda bir fotoğraf.', photo: 'assets/album/deniz.jpg' },
+    { place: 'Ayna karesi', date: '', caption: 'Güneş gözlükleri: zorunlu.', photo: 'assets/album/ayna.jpg' },
+    { place: 'Buz gibi bir sergi', date: '', caption: 'Buz gibi bir sergi, sıcacık bir sarılma.', photo: 'assets/album/sergi.jpg' },
+    { place: 'Kürek teknesi', date: '', caption: 'Kürekler bizde, rota belli değil.', photo: 'assets/album/kurek.jpg' },
     { place: 'Dover Castle Pub', date: 'Borough, Londra', caption: 'Her şeyin başladığı yer. Kimse bu kadar güzel bir hikâye başlayacağını bilmiyordu.', photo: '' },
     { place: 'Lambeth · Kalpli Duvar', date: 'İlk el ele yürüyüş', caption: 'Kalpli duvarın önünde ilk kez el ele yürüdük.', photo: '' },
     { place: 'Resmen “biz”', date: '2 Nisan 2026', caption: 'Gizemin en güzel cevabı: biz.', photo: '' },
     { place: 'Tamesis Dock', date: 'Yeşil-sarı tekne', caption: 'Keçi peyniri, ekmek ve sen.', photo: '' },
     { place: 'Sıcak Hava Balonu', date: 'Bulutların üstünde', caption: 'Seninle her yer biraz daha yüksek.', photo: '' },
-    { place: 'Ouzoud Şelalesi', date: 'Fas', caption: 'Maymunlar bile bize bakıp kıskandı.', photo: '' },
+    { place: 'Ouzoud Şelalesi', date: 'Fas', caption: 'Maymunlar bile bize bakıp kıskandı.', photo: 'assets/album/ouzoud.jpg' },
     { place: 'Çiftlik', date: 'Hayvan besleme günü', caption: 'Kimin daha çok hayvan sevdiği hâlâ tartışmalı.', photo: '' },
     { place: 'Nice', date: 'Fransa', caption: 'Mavi deniz, sen ve ben.', photo: '' },
     { place: 'Roma', date: 'İtalya', caption: 'Tiramisu’nun memleketinde.', photo: '' },
@@ -429,13 +440,14 @@ function softShadow(x,y,rx,ry,a=.28){ const gr=g.createRadialGradient(x,y,0,x,y,
 /* ---------- characters (semi-realistic proportions: head ~1/6 of height) ---------- */
 const LOOK = {
   // Su: golden blonde half-up hair with face-framing strands, flower clip, blue-grey eyes, light freckles, lilac corset dress with pink lace off-shoulder ruffle
-  su:    { body:'f', skin:'#f7dbc9', skinSh:'#e7bba4', hair:'#d8ab60', hairHi:'#f5dc9e', hairLo:'#a3753a', style:'updo', iris:'#7c9fc0', lashes:true, brow:'#a27548', browW:.3, lips:'#cf6b7c', freckles:true,
-           outfit:'corset', dress:'#e9d8f6', bodice:'#b39ae0', bodiceHi:'#f0a6c6', ruffle:'#f8cadb', bow:'#ec8db3', necklace:true, flower:true, legs:'#f7dbc9', shoes:'#d68fb0' },
+  // Su (Thames photo): long golden-blonde hair worn down with a centre part, red halter dress, sparkly choker
+  su:    { body:'f', skin:'#f7dbc9', skinSh:'#e7bba4', hair:'#d6aa62', hairHi:'#f3d89a', hairLo:'#a37538', style:'longdown', iris:'#7c9fc0', lashes:true, brow:'#a27548', browW:.3, lips:'#c9505e',
+           outfit:'halter', dress:'#cc1a2e', choker:true, legs:'#f7dbc9', shoes:'#d8b096' },
   daphne:{ body:'f', skin:'#f6dac4', skinSh:'#e6b99f', hair:'#de6c2c', hairHi:'#f59a52', hairLo:'#a84a18', style:'bob', iris:'#5f8a3a', lashes:true, brow:'#a84a18', browW:.3, lips:'#c4516a',
            outfit:'dress', dress:'#8e44ad', legs:'#f0c9b0', shoes:'#6b2a8a', headband:'#c084fc', scarf:'#3fb950' },
-  // Efişkom: dark wavy shaggy hair with a fringe to the brows, thick brows, brown eyes, dark jacket
-  efe:   { body:'m', skin:'#e8be9e', skinSh:'#d29f80', hair:'#211612', hairHi:'#56402f', hairLo:'#120b08', style:'shaggy', iris:'#4a2c18', brow:'#1d140f', browW:.55, lips:'#b87c70',
-           outfit:'jacket', top:'#2b2b32', tee:'#18181d', collar:'#44444e', legs:'#262d40', shoes:'#16121b' },
+  // Efişkom (Thames photo): dark brown hair swept back with a little wave, short beard, navy linen shirt open at the collar, thin chain
+  efe:   { body:'m', skin:'#e8be9e', skinSh:'#d29f80', hair:'#2a1c15', hairHi:'#5e4434', hairLo:'#150d09', style:'swept', iris:'#4a2c18', brow:'#1d140f', browW:.5, lips:'#b87c70', beard:true, grin:true,
+           outfit:'shirt', top:'#1e2840', legs:'#2b2b33', shoes:'#16121b' },
 };
 function human(sx,sy,L,an={}){
   const t=an.t||0, walk=an.walk, ph=walk?Math.sin(t*11):0, bob=walk?Math.abs(Math.sin(t*11))*.9:Math.sin(t*2.2)*.3;
@@ -447,7 +459,9 @@ function human(sx,sy,L,an={}){
   if(an.flip) g.scale(-1,1);
   g.translate(0,-bob);
   // hair behind everything
+  if(L.style==='longdown'){ g.fillStyle=hairGrad(HY-6,-23); g.beginPath(); g.moveTo(-5,HY-3); g.bezierCurveTo(-6.8,HY+3,-6.9,HY+9,-6.3,-24.4); g.quadraticCurveTo(-4,-23.2,-2,-24.2); g.quadraticCurveTo(0,-23.4,2,-24.2); g.quadraticCurveTo(4,-23.2,6.3,-24.4); g.bezierCurveTo(6.9,HY+9,6.8,HY+3,5,HY-3); g.closePath(); g.fill() }
   if(L.style==='updo'){ ell(0,HY-.4,5.4,6.3,HL); circ(.5,HY-6.3,2.5,HL); circ(.5,HY-6.5,2,L.hair); g.strokeStyle=HL; g.lineWidth=.22; g.beginPath(); g.arc(.5,HY-6.5,1.2,.3,2.9); g.stroke() }
+  if(L.style==='swept'){ g.fillStyle=L.hair; g.beginPath(); g.ellipse(.2,HY-1.4,5.4,6.3,0,0,TAU); g.fill(); g.beginPath(); g.moveTo(-4.4,HY+.6); g.quadraticCurveTo(-4.6,HY+3.6,-2.6,HY+3.8); g.lineTo(2.6,HY+3.8); g.quadraticCurveTo(4.6,HY+3.6,4.4,HY+.6); g.closePath(); g.fill() }
   if(L.style==='shaggy'){ g.fillStyle=L.hair; g.beginPath(); g.ellipse(0,HY-1,5.9,6.6,0,0,TAU); g.fill(); g.beginPath(); g.moveTo(-5,HY+1); g.quadraticCurveTo(-5.4,HY+4.6,-3,HY+4.8); g.lineTo(3,HY+4.8); g.quadraticCurveTo(5.4,HY+4.6,5,HY+1); g.closePath(); g.fill() }
   if(L.style==='bob'){ g.fillStyle=hairGrad(HY-6,HY+5); g.beginPath(); g.moveTo(-5.6,HY-1.5); g.quadraticCurveTo(-6.4,HY+3.4,-5.2,HY+5); g.quadraticCurveTo(0,HY+5.8,5.2,HY+5); g.quadraticCurveTo(6.4,HY+3.4,5.6,HY-1.5); g.closePath(); g.fill() }
   // legs
@@ -463,6 +477,21 @@ function human(sx,sy,L,an={}){
     g.fillStyle=tor(0,L.top); g.beginPath(); g.moveTo(-SH,-30.4); g.quadraticCurveTo(-SH-.2,-31.4,-SH+1.4,-31.6); g.lineTo(SH-1.4,-31.6); g.quadraticCurveTo(SH+.2,-31.4,SH,-30.4); g.lineTo(4.3,-19.6); g.lineTo(-4.3,-19.6); g.closePath(); g.fill();
     pathFill([[-1.7,-31.7],[1.7,-31.7],[0,-27.4]],L.tee); pathFill([[-2.3,-31.7],[-.2,-27.2],[-1,-26.4],[-3,-31.2]],L.collar); pathFill([[2.3,-31.7],[.2,-27.2],[1,-26.4],[3,-31.2]],L.collar);
     line(0,-27.2,0,-20,.25,'rgba(255,255,255,.18)'); rrect(-4.3,-20.6,8.6,1,.4,shade(L.top,-.25)); for(const s of [-1,1]) line(s*2.4,-23.4,s*3.4,-23.2,.25,'rgba(255,255,255,.12)') }
+  else if(L.outfit==='halter'){
+    rrect(-SH-.4,-31.8,2*SH+.8,3.6,1.6,SK);
+    const dg=g.createLinearGradient(-5,0,5,0); dg.addColorStop(0,shade(L.dress,.12)); dg.addColorStop(.55,L.dress); dg.addColorStop(1,shade(L.dress,-.25)); g.fillStyle=dg;
+    g.beginPath(); g.moveTo(-SH+.7,-29.4); g.quadraticCurveTo(-2.2,-31.6,-1.25,-33.6); g.lineTo(-.55,-33.6); g.quadraticCurveTo(-.6,-30,0,-26.8); g.quadraticCurveTo(.6,-30,.55,-33.6); g.lineTo(1.25,-33.6); g.quadraticCurveTo(2.2,-31.6,SH-.7,-29.4);
+    g.quadraticCurveTo(SH-.2,-26.4,WA+.1,-24); g.quadraticCurveTo(WA+1.6,-20.5,WA+1.5,-15.2); g.quadraticCurveTo(0,-14.3,-WA-1.5,-15.2); g.quadraticCurveTo(-WA-1.6,-20.5,-WA-.1,-24); g.quadraticCurveTo(-SH+.2,-26.4,-SH+.7,-29.4); g.fill();
+    g.strokeStyle='rgba(80,0,10,.35)'; g.lineWidth=.18; for(const x of [-1.4,1.4]){ g.beginPath(); g.moveTo(x*.9,-27); g.quadraticCurveTo(x*1.3,-21,x*1.1,-15.4); g.stroke() }
+    g.strokeStyle='rgba(255,255,255,.18)'; g.lineWidth=.35; g.beginPath(); g.moveTo(-2.6,-28.4); g.quadraticCurveTo(-3.2,-22,-3.4,-16); g.stroke() }
+  else if(L.outfit==='shirt'){
+    const sg=g.createLinearGradient(-SH,0,SH,0); sg.addColorStop(0,shade(L.top,.14)); sg.addColorStop(.6,L.top); sg.addColorStop(1,shade(L.top,-.2)); g.fillStyle=sg;
+    g.beginPath(); g.moveTo(-SH,-30.4); g.quadraticCurveTo(-SH-.2,-31.4,-SH+1.4,-31.6); g.lineTo(SH-1.4,-31.6); g.quadraticCurveTo(SH+.2,-31.4,SH,-30.4); g.lineTo(4.4,-18.8); g.quadraticCurveTo(0,-18.2,-4.4,-18.8); g.closePath(); g.fill();
+    pathFill([[-1.5,-31.8],[1.5,-31.8],[0,-27.6]],SK); g.strokeStyle='rgba(200,180,140,.8)'; g.lineWidth=.13; g.beginPath(); g.arc(0,-31.4,1.4,.2*Math.PI,.8*Math.PI); g.stroke();
+    for(const s of [-1,1]) pathFill([[s*1.5,-31.9],[s*3.1,-31.4],[s*1.9,-29.4],[s*.4,-28]],shade(L.top,.22));
+    for(let k=0;k<5;k++) circ(0,-26.6+k*1.6,.16,'rgba(255,255,255,.55)');
+    pathFill([[-3.1,-27.6],[-2.2,-27.9],[-2.6,-27.2]],'rgba(255,255,255,.75)');
+    g.strokeStyle='rgba(255,255,255,.08)'; g.lineWidth=.3; for(const x of [-2.8,2.6]){ g.beginPath(); g.moveTo(x,-29); g.quadraticCurveTo(x+.4,-24,x,-19.6); g.stroke() } }
   else if(L.outfit==='corset'){
     rrect(-SH-.4,-31.8,2*SH+.8,3.4,1.6,SK); g.fillStyle=SS; g.globalAlpha=.35; g.beginPath(); g.ellipse(0,-28.6,2.2,.5,0,0,TAU); g.fill(); g.globalAlpha=1;
     // lace skirt
@@ -479,16 +508,17 @@ function human(sx,sy,L,an={}){
     g.strokeStyle='rgba(0,0,0,.15)'; g.lineWidth=.3; g.beginPath(); g.moveTo(-WA,-24); g.quadraticCurveTo(0,-23.4,WA,-24); g.stroke() }
   // arms
   for(const s of [-1,1]){ g.save(); g.translate(s*(SH-.55),-30.4); g.rotate(-ph*.42*s + s*.07);
-    const aw=F?.82:1.02, armCol=L.outfit==='jacket'?L.top:SK;
+    const aw=F?.82:1.02, armCol=(L.outfit==='jacket'||L.outfit==='shirt')?L.top:SK;
     g.fillStyle=armCol; g.beginPath(); g.moveTo(-aw,0); g.lineTo(aw,0); g.quadraticCurveTo(aw*.9,6,aw*.68,11.6); g.lineTo(-aw*.68,11.6); g.quadraticCurveTo(-aw*.9,6,-aw,0); g.fill();
     if(L.outfit==='dress') rrect(-aw-.15,-.2,2*aw+.3,3.4,.9,L.dress);
-    if(L.outfit==='jacket') rrect(-aw*.72,10.8,aw*1.44,.9,.3,shade(L.top,-.3));
+    if(L.outfit==='jacket'||L.outfit==='shirt') rrect(-aw*.72,10.8,aw*1.44,.9,.3,shade(L.top,(L.outfit==='shirt'?.12:-.3)));
     g.fillStyle=SK; g.beginPath(); g.ellipse(0,12.6,aw*.82,1.05,0,0,TAU); g.fill(); g.restore() }
   if(L.ruffle){ g.fillStyle=L.ruffle; g.beginPath(); g.moveTo(-SH-1.5,-30); g.quadraticCurveTo(0,-28.6,SH+1.5,-30); g.lineTo(SH+1.5,-28.6); g.quadraticCurveTo(0,-27.4,-SH-1.5,-28.6); g.closePath(); g.fill();
     for(let x=-SH-1.3;x<=SH+1.4;x+=.85) circ(x,-28.4+Math.abs(x)*-.02+(1-Math.abs(x)/6)*.6,.42,L.ruffle);
     for(let x=-SH-.9;x<=SH+1;x+=1.1) circ(x,-29.1+(1-Math.abs(x)/6)*.6,.14,'rgba(255,255,255,.75)');
     const bx=.8, by=-28.5; pathFill([[bx,by],[bx-1,by-.6],[bx-1,by+.6]],L.bow); pathFill([[bx,by],[bx+1,by-.6],[bx+1,by+.6]],L.bow); line(bx-.1,by+.2,bx-.5,by+2.6,.26,L.bow); line(bx+.1,by+.2,bx+.5,by+2.4,.26,L.bow); circ(bx,by,.28,shade(L.bow,-.15)) }
   if(L.scarf){ rrect(-2.2,HY+6.8,4.4,1.6,.8,L.scarf); pathFill([[1.4,HY+7.6],[3,HY+10.2],[1.8,HY+10.4]],shade(L.scarf,-.1)) }
+  if(L.choker){ for(let k=-3;k<=3;k++){ const x=k*.36, y=HY+6.5+Math.abs(k)*.06; circ(x,y,.2,'#f4f8ff'); circ(x-.05,y-.06,.07,'#fff') } }
   if(L.necklace){ g.strokeStyle='rgba(255,255,255,.9)'; g.lineWidth=.13; g.beginPath(); g.arc(0,HY+6.4,1.9,.18*Math.PI,.82*Math.PI); g.stroke(); circ(0,HY+8.3,.26,'#e8f6ff') }
   // head
   for(const s of [-1,1]) ell(s*(F?4.2:4.4),EY+.2,.72,1.2,SS);
@@ -517,9 +547,31 @@ function human(sx,sy,L,an={}){
   if(F){ g.fillStyle=shade(L.lips,-.08); g.beginPath(); g.moveTo(-1.25,MY); g.quadraticCurveTo(-.5,MY-.55,0,MY-.3); g.quadraticCurveTo(.5,MY-.55,1.25,MY); g.quadraticCurveTo(0,MY+.12,-1.25,MY); g.fill();
     g.fillStyle=L.lips; g.beginPath(); g.moveTo(-1.2,MY+.02); g.quadraticCurveTo(0,MY+1.2,1.2,MY+.02); g.quadraticCurveTo(0,MY+.25,-1.2,MY+.02); g.fill();
     g.strokeStyle='rgba(110,40,50,.55)'; g.lineWidth=.13; g.beginPath(); g.moveTo(-1.3,MY-.06); g.quadraticCurveTo(0,MY+.32,1.3,MY-.06); g.stroke(); ell(.25,MY+.5,.32,.12,'rgba(255,255,255,.45)') }
+  else if(L.grin){ g.fillStyle='#6a2a28'; g.beginPath(); g.moveTo(-1.45,MY-.15); g.quadraticCurveTo(0,MY+1.25,1.45,MY-.15); g.quadraticCurveTo(0,MY+.15,-1.45,MY-.15); g.fill();
+    g.fillStyle='#fbf8f2'; g.beginPath(); g.moveTo(-1.25,MY-.05); g.quadraticCurveTo(0,MY+.55,1.25,MY-.05); g.quadraticCurveTo(0,MY+.1,-1.25,MY-.05); g.fill();
+    g.strokeStyle='#8a4c44'; g.lineWidth=.16; g.beginPath(); g.moveTo(-1.5,MY-.18); g.quadraticCurveTo(0,MY+1.3,1.5,MY-.18); g.stroke() }
   else { g.strokeStyle='#8a4c44'; g.lineWidth=.26; g.lineCap='round'; g.beginPath(); g.moveTo(-1.35,MY-.1); g.quadraticCurveTo(0,MY+.45,1.35,MY-.15); g.stroke(); g.strokeStyle='rgba(150,80,70,.35)'; g.lineWidth=.2; g.beginPath(); g.moveTo(-.6,MY+.7); g.quadraticCurveTo(0,MY+.95,.6,MY+.7); g.stroke() }
+  if(L.beard){ g.fillStyle='rgba(42,28,20,.24)'; g.beginPath(); g.moveTo(-4.3,EY+.6); g.bezierCurveTo(-4.1,HY+3.6,-2.6,HY+5.4,0,HY+5.6); g.bezierCurveTo(2.6,HY+5.4,4.1,HY+3.6,4.3,EY+.6); g.quadraticCurveTo(3.4,HY+3.2,1.6,HY+2.6); g.quadraticCurveTo(0,HY+2.3,-1.6,HY+2.6); g.quadraticCurveTo(-3.4,HY+3.2,-4.3,EY+.6); g.fill();
+    g.fillStyle='rgba(42,28,20,.3)'; g.beginPath(); g.moveTo(-1.5,HY+2.7); g.quadraticCurveTo(0,HY+2.1,1.5,HY+2.7); g.quadraticCurveTo(0,HY+3.05,-1.5,HY+2.7); g.fill() }
   // hair in front
-  if(L.style==='updo'){
+  if(L.style==='longdown'){
+    g.fillStyle=hairGrad(HY-6.8,HY); g.beginPath(); g.moveTo(-4.8,HY); g.bezierCurveTo(-5.3,HY-4.6,-3.2,HY-6.9,0,HY-6.9); g.bezierCurveTo(3.2,HY-6.9,5.3,HY-4.6,4.8,HY);
+    g.quadraticCurveTo(4.4,HY-3,2.5,HY-4.5); g.quadraticCurveTo(.9,HY-5,0,HY-5.4); g.quadraticCurveTo(-.9,HY-5,-2.5,HY-4.5); g.quadraticCurveTo(-4.4,HY-3,-4.8,HY); g.fill();
+    line(0,HY-6.7,0,HY-5.4,.18,HL);
+    g.strokeStyle=HH; g.lineWidth=.2; for(const s of [-1,1]) for(const k of [0,1,2]){ g.beginPath(); g.moveTo(s*(.4+k*.5),HY-6.6+k*.15); g.quadraticCurveTo(s*(3.1+k*.4),HY-6.1+k*.4,s*(4.4+k*.1),HY-2.4+k*.5); g.stroke() }
+    // her right side (viewer's left): long strand falling in front over the shoulder; her left side: tucked behind the ear
+    g.fillStyle=hairGrad(HY-5,-24); g.beginPath(); g.moveTo(-2.6,HY-4.6); g.bezierCurveTo(-5.4,HY-3,-5.4,HY+1,-4.8,HY+4); g.bezierCurveTo(-4.4,HY+7,-5.6,-29,-5.2,-24.6); g.quadraticCurveTo(-4.4,-24,-3.6,-24.8); g.bezierCurveTo(-4,-28.4,-3.4,HY+5,-3.8,HY+2.2); g.bezierCurveTo(-4.1,HY-.6,-4,HY-3,-2.6,HY-4.6); g.fill();
+    g.strokeStyle=HH; g.lineWidth=.16; g.beginPath(); g.moveTo(-3.6,HY-3.6); g.bezierCurveTo(-4.8,HY-1,-4.2,HY+4,-4.6,-25.4); g.stroke();
+    g.fillStyle=hairGrad(HY-5,HY+3); g.beginPath(); g.moveTo(2.6,HY-4.6); g.bezierCurveTo(4.9,HY-3.4,5,HY-1,4.6,HY+.6); g.quadraticCurveTo(4.2,HY-.6,3.9,HY-1.4); g.bezierCurveTo(4,HY-2.8,3.6,HY-3.8,2.6,HY-4.6); g.fill();
+  }
+  else if(L.style==='swept'){
+    g.fillStyle=hairGrad(HY-7.6,HY+1); g.beginPath(); g.moveTo(-4.7,HY+.8); g.bezierCurveTo(-5.9,HY-4.6,-3.4,HY-7.8,.4,HY-7.6); g.bezierCurveTo(4,HY-7.6,6.1,HY-4.8,4.8,HY+.8);
+    g.quadraticCurveTo(4.5,HY-1.2,4.3,HY-2.6); g.quadraticCurveTo(3.6,HY-4.4,1.6,HY-4.6); g.quadraticCurveTo(0,HY-4.9,-1.2,HY-4.4);
+    g.quadraticCurveTo(-1.9,HY-3.3,-2.6,HY-3.9); g.quadraticCurveTo(-3.9,HY-4,-4.3,HY-2.4); g.quadraticCurveTo(-4.5,HY-1,-4.7,HY+.8); g.fill();
+    g.strokeStyle=HH; g.lineWidth=.22; g.lineCap='round'; for(const [a,b,c,d] of [[-3.4,HY-5.4,1.2,HY-7.2],[-2,HY-4.4,3,HY-6.8],[-.4,HY-4.6,4.4,HY-5.6],[3.6,HY-4.2,4.6,HY-1]]){ g.beginPath(); g.moveTo(a,b); g.quadraticCurveTo((a+c)/2,(b+d)/2-1.2,c,d); g.stroke() }
+    g.strokeStyle=L.hair; g.lineWidth=.5; g.beginPath(); g.moveTo(-1.4,HY-4.4); g.quadraticCurveTo(-1.9,HY-3.2,-1.3,HY-2.7); g.stroke();
+  }
+  else if(L.style==='updo'){
     g.fillStyle=hairGrad(HY-6.8,HY); g.beginPath(); g.moveTo(-4.75,HY-.2); g.bezierCurveTo(-5.2,HY-4.6,-3.2,HY-6.8,0,HY-6.8); g.bezierCurveTo(3.2,HY-6.8,5.2,HY-4.6,4.75,HY-.2);
     g.quadraticCurveTo(4.3,HY-2.8,2.4,HY-4.2); g.quadraticCurveTo(.9,HY-4.8,0,HY-5.1); g.quadraticCurveTo(-.9,HY-4.8,-2.4,HY-4.2); g.quadraticCurveTo(-4.3,HY-2.8,-4.75,HY-.2); g.fill();
     line(0,HY-6.6,0,HY-5.1,.18,HL);
@@ -547,6 +599,17 @@ function human(sx,sy,L,an={}){
 // Joker: white. Simba: fluffy, mostly grey with white and a little orange. Luka: mostly white with tabby and orange patches (body and face).
 const TABBY='#9c8a74', TABBY_D='#5f5144', GINGER='#e59a52';
 const CATS={
+  // Haylaz: tiny, blind, white with tabby patches (eyes drawn softly closed)
+  haylaz:{fur:'#f7f4ef',dark:'#e8e2d8',belly:'#ffffff',eye:'#2b1a12',mood:'happy',light:true, tail:TABBY, tailStripe:TABBY_D, ears:[TABBY,'#f7f4ef'],
+    body(){ ell(-2.8,-9.6,3.4,2.4,TABBY); for(const x of [-4.4,-2.8,-1.2]) line(x,-11.6,x+.5,-8.2,.5,TABBY_D) }, head(hx,hy){ ell(hx-2.6,hy-2.8,2.6,2.3,TABBY); line(hx-2.4,hy-4.8,hx-2.2,hy-2.8,.4,TABBY_D) } },
+  // Turuncu Efe: orange street cat, Tonton's best friend
+  efecat:{fur:'#e8913a',dark:'#c8712a',belly:'#ffe2c0',eye:'#2b1a12',mood:'calm', tail:'#e8913a', tailStripe:'#b8641e',
+    body(){ for(const x of [-5,-3,-1,1]) line(x,-11.8,x+.6,-8,.7,'#c46a22') }, head(hx,hy){ for(const dx of [-1.4,0,1.4]) line(hx+dx,hy-4.6,hx+dx*.8,hy-2.6,.45,'#c46a22') } },
+  // Pişmaniye: teeny white kitten
+  pismaniye:{fur:'#fbfaf7',dark:'#ece8e2',belly:'#ffffff',eye:'#2b1a12',mood:'calm',light:true},
+  // Gevrek: teeny tabby kitten
+  gevrek:{fur:'#a08a70',dark:'#7e6a54',belly:'#eadfcc',eye:'#2b1a12',mood:'calm', tail:'#a08a70', tailStripe:'#5e4e3e',
+    body(){ for(const x of [-5,-3,-1,1,3]) line(x,-11.8,x+.6,-8,.6,'#5e4e3e') }, head(hx,hy){ for(const dx of [-1.4,0,1.4]) line(hx+dx,hy-4.6,hx+dx*.8,hy-2.6,.45,'#5e4e3e') } },
   luka:{fur:'#f6f3ee',dark:'#e9e3da',belly:'#ffffff',eye:'#2b1a12',mood:'scared',light:true, tail:TABBY, tailStripe:TABBY_D, ears:[TABBY,GINGER],
     body(){ ell(-2.6,-9.8,4,2.6,TABBY); for(const x of [-4.6,-3,-1.4]) line(x,-12,x+.6,-8.4,.5,TABBY_D); ell(3.4,-9.2,2.4,1.9,GINGER) },
     head(hx,hy){ ell(hx-2.6,hy-2.8,2.8,2.4,TABBY); line(hx-3.4,hy-4.8,hx-3,hy-2.6,.4,TABBY_D); line(hx-2,hy-5,hx-1.8,hy-2.8,.4,TABBY_D); ell(hx+3,hy-1.4,2.1,2.3,GINGER) } },
@@ -579,12 +642,34 @@ function cat(sx,sy,k,an={}){
   if(C.head){ g.save(); g.beginPath(); g.arc(hx,hy,hr,0,TAU); g.clip(); C.head(hx,hy); g.restore() }
   ell(hx,hy+1.6,2.6,1.6,C.belly);
   if(C.mood==='scared'){ for(const s of [-1,1]){ circ(hx+s*1.8,hy-.6,1.5,'#fff'); g.strokeStyle='rgba(60,50,60,.5)'; g.lineWidth=.25; g.beginPath(); g.arc(hx+s*1.8,hy-.6,1.5,0,TAU); g.stroke(); circ(hx+s*1.8,hy-.4,.55,'#111') } ell(hx+4.6,hy-4,.8,1.2,'#7cc4ff') }
+  else if(C.mood==='calm'){ for(const s of [-1,1]){ ell(hx+s*1.8,hy-.4,1.05,1.2,'#2b2218'); circ(hx+s*1.8+.35,hy-.85,.36,'#fff') } }
   else if(C.mood==='angry'){ for(const s of [-1,1]){ ell(hx+s*1.8,hy-.4,1.2,.85,C.eye); ell(hx+s*1.8,hy-.4,.25,.8,'#111') } const bc=C.brow||'#d8d8e0'; line(hx-3,hy-2.4,hx-.8,hy-1.5,.7,bc); line(hx+3,hy-2.4,hx+.8,hy-1.5,.7,bc) }
   else { g.strokeStyle='#2b1a12'; g.lineWidth=.7; for(const s of [-1,1]){ g.beginPath(); g.arc(hx+s*1.8,hy-.2,.95,Math.PI*1.1,Math.PI*1.9); g.stroke() } ell(hx-2.8,hy+1,1,.6,'rgba(255,120,140,.45)'); ell(hx+2.8,hy+1,1,.6,'rgba(255,120,140,.45)') }
   pathFill([[hx-.6,hy+1],[hx+.6,hy+1],[hx,hy+1.7]],'#ff8fa3');
   const wc=C.light||C.fluffy?'rgba(110,100,115,.55)':'rgba(240,240,240,.6)'; for(const s of [-1,1]){ line(hx+s*1.4,hy+1.7,hx+s*5,hy+1.2,.3,wc); line(hx+s*1.4,hy+2,hx+s*5,hy+2.4,.3,wc) }
   g.restore();
 }
+function streetDog(sx,sy,an={}){ const t=an.t||0, wag=Math.sin(t*9), fur='#8e8173', dk='#5c5044', lt='#c9bca8', br=Math.sin(t*2)*.25;
+  g.save(); g.translate(sx,sy); if(an.scale) g.scale(an.scale,an.scale); if(!an.noShadow) softShadow(0,0,13,3.4,.3); if(an.flip) g.scale(-1,1);
+  // tail (wagging)
+  g.strokeStyle=fur; g.lineWidth=2.6; g.lineCap='round'; g.beginPath(); g.moveTo(-9.5,-13); g.quadraticCurveTo(-14,-15-wag*1.5,-13+wag*1.5,-20); g.stroke();
+  // far legs (darker), body, near legs
+  for(const lx of [-6.5,6]){ rrect(lx-1.5,-8,3,7.8,1.4,dk); ell(lx+.4,-.3,1.9,.8,'#3e352c') }
+  g.fillStyle=fur; g.beginPath(); g.ellipse(0,-11.2+br,10.8,5.6,0,0,TAU); g.fill();
+  ell(-3.2,-14.2+br,5.6,1.9,dk,.08);                                   // dark saddle
+  g.strokeStyle='rgba(60,50,40,.35)'; g.lineWidth=.35; for(let i=0;i<9;i++){ const x=-8+i*1.9; g.beginPath(); g.moveTo(x,-15+br); g.lineTo(x-.6,-13.4+br); g.stroke() }
+  for(const lx of [-8.2,4.2]){ rrect(lx-1.6,-8,3.2,8,1.5,fur); ell(lx+.5,-.3,2,.85,dk) }
+  ell(7.4,-10.2+br,3.4,3.8,lt);                                        // light chest
+  // neck + head facing right
+  g.fillStyle=fur; g.beginPath(); g.ellipse(9.6,-15.6+br,3.2,4.6,.5,0,TAU); g.fill();
+  const hx=12.2, hy=-20.4+br; circ(hx,hy,4.4,fur); ell(hx+3.8,hy+1.6,3.4,2.2,lt); circ(hx+6.8,hy+.9,1.05,'#2a2420');
+  line(hx+5.6,hy+2.8,hx+3.2,hy+3.2,.35,'#5a4a3e');
+  g.fillStyle=dk; g.beginPath(); g.ellipse(hx-1.6,hy+.6,1.9,3.9,.35,0,TAU); g.fill();       // floppy ear
+  g.strokeStyle='#2a2420'; g.lineWidth=.6; g.beginPath(); g.arc(hx+1.6,hy-1,.85,Math.PI*1.1,Math.PI*1.9); g.stroke();   // happy eye
+  line(hx+.6,hy-2.6,hx+2.6,hy-2.8,.5,dk);                                                   // brow
+  if(an.tongue!==false) ell(hx+4.6,hy+4,.9,1.4,'#e87a8a');
+  if(an.hold) an.hold(hx,hy);
+  g.restore() }
 function dog(sx,sy,an={}){
   const t=an.t||0, walk=an.walk, ph=walk?Math.sin(t*12):0;
   g.save(); g.translate(sx,sy); if(an.scale) g.scale(an.scale,an.scale); if(!an.noShadow) softShadow(0,0,12,3.4,.3); if(an.flip) g.scale(-1,1);
@@ -693,6 +778,7 @@ function portrait(key){
   else if(key==='scooby') dog(20,210,{...an,scale:7.2});
   else if(key==='captain') ghost(96,240,{...an,scale:7,kind:'captain',float:0});
   else if(key==='monster') fuzzMonster(96,178,{...an,scale:5.4});
+  else if(key==='tonton') streetDog(30,200,{...an,scale:5.2});
   g=prev; return c }
 
 /* ---------------- DIALOG (no skipping: each line types out fully before the next) ---------------- */
@@ -702,6 +788,8 @@ const CHAR = {
   luka:{name:CN.luka,color:'#d0d8e0',p:'luka',pitch:1.6}, joker:{name:CN.joker,color:'#ff8ab0',p:'joker',pitch:1.1},
   simba:{name:CN.simba,color:'#ffb85a',p:'simba',pitch:1.4}, ghost:{name:'Hayalet Kaptan',color:'#9be15d',p:'captain',pitch:.5},
   monster:{name:'Canavar',color:'#7cc4ff',p:'monster',pitch:.55},
+  haylaz:{name:'Haylaz',color:'#f0e6d8',p:'haylaz',pitch:1.9}, efecat:{name:'Turuncu Efe',color:'#ffb060',p:'efecat',pitch:1.2}, tonton:{name:'Tonton',color:'#c2b6a2',p:'tonton',pitch:.45},
+  pismaniye:{name:'Pişmaniye',color:'#ffffff',p:'pismaniye',pitch:2}, gevrek:{name:'Gevrek',color:'#d8b890',p:'gevrek',pitch:1.8},
 };
 const PORTRAITS={}; const getPortrait=k=>PORTRAITS[k]||(PORTRAITS[k]=portrait(k));
 let dialogOpen=false;
@@ -811,7 +899,7 @@ function exitEnt(x,y,label,to,spawn){ return ent({ id:'exit-'+to, exit:true, use
     this.hit=[sx-14,sy-22,28,34] },
   tap(){ return goArea(to, spawn) } }) }
 function balloonEnt(x,y,use){ return ent({ id:'balloon', name:'Balon', blocks:()=>[[x,y],[x+1,y],[x,y+1],[x+1,y+1]], use:use||[x,y+2], depth:x+y+2, attn:()=>(S.area==='park' && has('toblerone') && !S.done.ch2),
-  draw(){ const f=suBehind(x+1,y+1,25,118); if(f){ g.save(); g.globalAlpha=.35 } drawBalloon(x+1,y+1,S.area==='park'&&!S.done.ch2); if(f) g.restore(); const [bx,by]=P(x+1,y+1); this.hit=[bx-34,by-124,68,140] },
+  draw(){ const f=suBehind(x+1,y+1,25,118); if(f){ g.save(); g.globalAlpha=.35 } drawBalloon(x+1,y+1,S.area==='park'&&!S.done.ch2); if(f) g.restore(); const [bx,by]=P(x+1,y+1); this.hit=[bx-16,by-22,32,30] },
   async tap(){
     if(S.area==='park' && !S.done.ch2){
       if(has('toblerone')){ await busyTalk([['su',`${CN.simba}! Bak sana ne getirdim...`],['simba','PRRRR! Toblerone! Tamam tamam, balon kalkıyor! Ama önce benim sınavımı geçmen lazım...']]); useItem('toblerone'); return runChapter('ch2') }
@@ -847,7 +935,14 @@ const AREAS = {
     },
     deco(){ for(const [x,y] of [[5.5,2.5],[6.3,6.5]]){ const [sx,sy]=P(x,y); glow(sx,sy,50,'255,200,120',.14) } },
     ents:[
-      photoEnt('s1',3,7),
+      ent({id:'haylaz', pt:[3.5,7.5], use:[4,7], depth:10.6, attn:()=>!gotPhotos().includes('s1'),
+        draw(){ const [sx,sy]=P(3.5,7.5), got=gotPhotos().includes('s1');
+          if(!got){ glow(sx,sy-4,14,'255,225,150',.5); g.save(); g.translate(sx+4,sy-1.5); g.rotate(.5); rrect(-3,-6,6,12,.8,'#ffffff'); for(let i=0;i<3;i++) rrect(-2.3,-5.2+i*3.6,4.6,3,.4,'#c84a6a'); g.restore() }
+          cat(sx-1,sy,'haylaz',{t:W.t,scale:.72}); if(!got){ g.font='700 4px "Baloo 2",sans-serif'; g.fillStyle='rgba(255,255,255,.75)'; g.fillText('z',sx+3,sy-14-Math.sin(W.t*2)*1.5) }
+          this.hit=[sx-10,sy-16,20,18] },
+        async tap(){ if(gotPhotos().includes('s1')) return busyTalk([['haylaz','Mrrr... (Haylaz sesini duyunca başını sana doğru çeviriyor.)'],['su','Gözleri görmüyor ama beni her seferinde sesimden tanıyor.']]);
+          await busyTalk([['narr','Masaların arasında minicik, beyaz-tekir bir kedi kıvrılmış uyuyor.'],['su','Haylaz! Ne işin var burada?'],['haylaz','Mrrr?'],['su','Haylaz göremiyor ama sesimi hemen tanıdı. Bak nasıl mırlıyor...'],['narr','Haylaz gerinip kalkıyor. Altında bir fotoğraf şeridi varmış!']]);
+          return givePhoto('s1') } }),
       ent({id:'bar', blocks:()=>[[1,1],[1,2],[1,3],[1,4],[1,5]], depth:8, draw(){ box3(1,1,1,5,22,'#7a4a2a',0,'#5a3420'); box(.95,.95,1.1,5.1,2,'#c9a441','#b08a30','#9a7a28',22); for(const y of [1.7,2.9,4.1]){ const [sx,sy]=P(1.5,y,24); rrect(sx-.8,sy-8,1.6,8,.8,'#d9a441'); rrect(sx-2,sy-9.5,4,2,1,'#2a2a2a'); circ(sx,sy-10.2,.9,'#d61f3c') } for(const y of [3.5,4.6]){ const [sx,sy]=P(1.6,y,24); rrect(sx-1.6,sy-5,3.2,5,.8,'rgba(255,220,120,.85)'); rrect(sx-1.6,sy-5,3.2,1.4,.6,'#fff') } }}),
       ent({id:'stool1', blocks:()=>[[2,2]], depth:5, draw(){ cyl(2.5,2.5,.18,10,'#5a3420'); cyl(2.5,2.5,.26,2,'#a83a3a',10) }}),
       ent({id:'stool2', blocks:()=>[[2,4]], depth:7, draw(){ cyl(2.5,4.5,.18,10,'#5a3420'); cyl(2.5,4.5,.26,2,'#a83a3a',10) }}),
@@ -881,7 +976,14 @@ const AREAS = {
     },
     anim(t){ shimmer(-6,0,0,6,7,t,46) },
     ents:[
-      photoEnt('s3',8,3,()=>S.done.ch1),
+      ent({id:'tonton', pt:[8.5,3.5], blocks:()=>[[8,3]], use:[7,4], depth:12, show:()=>!!S && S.done.ch1, attn:()=>!gotPhotos().includes('s3'),
+        draw(){ const [sx,sy]=P(8.5,3.5), got=gotPhotos().includes('s3');
+          streetDog(sx,sy,{t:W.t,scale:1.3,flip:true,hold:got?null:(hx,hy)=>{ g.save(); g.translate(hx+5.2,hy+3.6); g.rotate(.2); rrect(-1.5,-3.8,3,7.6,.5,'#ffffff'); for(let i=0;i<3;i++) rrect(-1.1,-3.3+i*2.4,2.2,2,.3,'#555'); g.restore() }, tongue:got});
+          cat(sx+1,sy-20.5,'efecat',{t:W.t,scale:.66,noShadow:true});
+          this.hit=[sx-22,sy-38,44,40] },
+        async tap(){ if(gotPhotos().includes('s3')) return busyTalk([['tonton','Hav! (Tonton kuyruğunu sallıyor.)'],['efecat','Miyav. (Turuncu Efe sırtta keyifle esniyor.)']]);
+          await busyTalk([['narr','Nehir kıyısında kocaman, gri-kahverengi bir sokak köpeği duruyor. Sırtında da turuncu bir kedi oturuyor!'],['su','Tonton! Turuncu Efe yine onun sırtında... Bu ikisi hiç ayrılmıyor.'],['efecat','Miyav!'],['tonton','Hav hav!'],['narr','Tonton ağzındaki şeyi dikkatlice Su’nun ayaklarına bırakıyor.']]);
+          return givePhoto('s3') } }),
       ent({id:'lamp1', blocks:()=>[[0,1]], depth:2, draw(){ lamp(.5,1.5,40,S.done.ch1) }}),
       ent({id:'lamp2', blocks:()=>[[0,4]], depth:5, draw(){ lamp(.5,4.5,40,S.done.ch1) }}),
       ent({id:'sign', use:[6,1], flat:true, show:()=>S.done.ch1, draw(){ const [sx,sy]=P(6,0,42); this.hit=[sx-26,sy-12,52,24] },
@@ -953,11 +1055,14 @@ const AREAS = {
         if(!S.done.finale && W.mode!=='trap'){ const [cx,cy]=P(2.5,1.2,41); ghost(cx,cy,{t:W.t,kind:'captain',noShadow:true}) } }}),
       ent({id:'umb1', blocks:()=>[[6,2]], depth:9, draw(){ umbrellaTable(6,2,'#e33') }}),
       ent({id:'umb2', blocks:()=>[[7,5]], depth:13, draw(){ umbrellaTable(7,5,'#2e7d4f') }}),
+      ent({id:'kittens', pt:[2.5,6.3], use:[3,6], depth:9.2,
+        draw(){ const [ax,ay]=P(2.2,6.4), [bx,by]=P(2.95,6.15); cat(ax,ay,'pismaniye',{t:W.t,scale:.5,flip:true}); cat(bx,by,'gevrek',{t:W.t+1,scale:.52}); this.hit=[Math.min(ax,bx)-7,Math.min(ay,by)-10,Math.abs(bx-ax)+14,12] },
+        tap(){ if(W.mode==='chase') return; return busyTalk([['narr','Masanın dibinde iki minicik kedi: bembeyaz Pişmaniye ve tekir Gevrek!'],['pismaniye','Mi!'],['gevrek','Miyav!'],['su', (has('plate')||S.bait) ? 'Size ekmeğin kenarını bıraktım, paylaşın ama!' : 'Gözünüz keçi peynirinde, değil mi? Size de bir parça ayıracağım.']]) } }),
       ent({id:'cheese', blocks:()=>[[2,5]], use:[3,5], depth:8, attn:()=>S.done.ch3&&!has('plate')&&!S.done.finale&&!S.bait,
         draw(){ box3(2.15,5.15,.7,.7,13,'#a86a32'); if(!has('plate')&&!S.bait){ const [sx,sy]=P(2.5,5.5,13); g.save(); g.translate(sx,sy-3); g.scale(.42,.42); ICON.plate(0,0); g.restore() } },
         async tap(){ if(has('plate')||S.bait) return busyTalk([['narr','Masa boş.']]);
           if(!S.done.ch3) return busyTalk([['su','Keçi peyniri ve ekmek! Tamesis Dock’ta en sevdiğim şey... ama önce şu hayaletlerden kurtulalım.']]);
-          await busyTalk([['su','Keçi peyniri ve ekmek! Tamesis Dock’ta en sevdiğim şey.'],['scooby','Ram! Rir lokma?'],['daphne','Dur Scooby! Kaptan da buna bayılıyormuş. Mükemmel bir yem olur...']]); addItem('plate') } }),
+          await busyTalk([['su','Keçi peyniri ve ekmek! Tamesis Dock’ta en sevdiğim şey.'],['narr','Masanın altından iki minicik kedi fırlıyor: bembeyaz Pişmaniye ve tekir Gevrek! İkisi de ekmeğin kenarını kemiriyor.'],['su','Pişmaniye! Gevrek! Tamam, size de bir parça ekmek koparıyorum...'],['pismaniye','Mi!'],['gevrek','Miyav!'],['scooby','Ram! Rir lokma da rana?'],['daphne','Dur Scooby! Kaptan da buna bayılıyormuş. Mükemmel bir yem olur...']]); addItem('plate') } }),
       ent({id:'trap', use:[5,3], flat:true, show:()=>S.done.ch3&&!S.done.finale, attn:()=>has('plate')&&has('net')&&S.pieces.length>=NP,
         draw(){ const a=.3+Math.sin(W.t*4)*.18; poly([P(5,3),P(6,3),P(6,4),P(5,4)],`rgba(155,225,93,${a})`); const [sx,sy]=P(5.5,3.5); this.hit=[sx-16,sy-16,32,28] },
         async tap(){
@@ -1343,9 +1448,7 @@ function isoSort(list){
   const out=[...flat], rem=[...rest];
   while(rem.length){ let pick=rem.findIndex(i=>!rem.some(j=>j!==i && before(j,i))); if(pick<0){ pick=0; for(let k=1;k<rem.length;k++) if(rem[k].depth<rem[pick].depth) pick=k } out.push(rem.splice(pick,1)[0]) }
   return out }
-function flyAvail(){ return W.running && W.mode==='explore' && !W.busy && !dialogOpen && S.done && S.done.ch2 }
 function render(){
-  { const fb=$('#flyBtn'), fa=flyAvail(); if(fb.hidden===fa) fb.hidden=!fa }
   if(W.bgKey!==S.area+ZS) buildBg();
   const [px,py]=P(S.x,S.y), b=W.bb;
   let tx=px-VW/2, ty=py-VH*.5;
@@ -1474,7 +1577,6 @@ async function onEnter(to){
 
 /* ---------- map (balloon travel) ---------- */
 const DESTS=[ {id:'park',name:'Londra',sub:'Lambeth Sarayı Bahçesi',spawn:[4.5,4.5]}, {id:'ouzoud',name:'Ouzoud',sub:'Şelaleler · Fas',spawn:[5.5,8.5],piece:'ouzoud'}, {id:'farm',name:'Çiftlik',sub:'Hayvan besleme günü',spawn:[2.5,7.5],piece:'farm'}, {id:'roma',name:'Roma',sub:'Aşk Çeşmesi · İtalya',spawn:[4.5,8.5],piece:'roma'}, {id:'nice',name:'Nice',sub:'Baie des Anges · Fransa',spawn:[7.5,7.5],piece:'nice'}, {id:'kotor',name:'Kotor',sub:'Dağın zirvesi · Karadağ',spawn:[4.5,6.5],piece:'kotor'}, {id:'viyana',name:'Viyana',sub:'Sanat müzesi · Avusturya',spawn:[8.5,6.5],piece:'viyana'} ];
-$('#flyBtn').onclick=e=>{ e.stopPropagation(); if(!flyAvail()) return; Sfx.init(); Sfx.whoosh(); W.path=[]; W.cb=null; $('#flyBtn').hidden=true; openMap() };
 function openMap(){ return new Promise(res=>{
   W.running=false; show('map'); const box=$('#dests'); box.innerHTML='';
   for(const d of DESTS){ const b=document.createElement('button'); b.className='dest'+(d.piece&&S.pieces.includes(d.piece)?' done':'')+(S.area===d.id?' here':''); const c=document.createElement('canvas'); c.width=320; c.height=240; postcard(d.id,c); b.appendChild(c); const s=document.createElement('span'); s.innerHTML=`${d.name}<small>${d.sub}</small>`; b.appendChild(s);
@@ -1514,7 +1616,7 @@ function goalText(){
   if(!S.done.ch1) return has('flash') ? '<b>Hedef:</b> Kapıdan çık, kalpli duvara git' : '<b>Hedef:</b> Barın yanındaki kayıp eşya kutusunda fener ara';
   const t=[];
   if(!S.done.ch2) t.push(has('toblerone')?'Toblerone’u balondaki Simba’ya götür':'Bahçedeki balona git');
-  if(S.done.ch2 && S.pieces.length<NP) t.push(`“Balonla uç” düğmesine bas, parçaları topla (${S.pieces.length}/${NP})`);
+  if(S.done.ch2 && S.pieces.length<NP) t.push(`Balonun sepetine dokun, parçaları topla (${S.pieces.length}/${NP})`);
   if(!follows('joker')) t.push('Ağaçtaki Joker’e balık götür');
   else if(!S.done.ch3) t.push('Joker’i Tamesis Dock’a götür');
   if(S.done.ch3 && S.pieces.length>=NP){ if(!has('plate')&&!S.bait) t.push('Teknedeki keçi peyniri ve ekmeği al'); else t.push('Yemi parlayan tuzak yerine koy') }
@@ -1544,7 +1646,7 @@ function actBtn(text, fn){ const b=$('#actbtn'); if(!text){ b.hidden=true; b.onc
 async function runChapter(k){
   if(k==='ch1') return startHunt();
   if(k==='ch2'){ W.running=false; await stageQuiz(); S.done.ch2=true; addItem('net'); addFollower('simba'); startWorld(); await addPiece('quiz');
-    return busyTalk([['simba','Prr! Al bunu: balonun ağı. Kaptanı yakalamak için lazım olacak. Ben de geliyorum!'],['daphne','Yukarıdan bir şey daha gördük: kaptan 14 Kasım yaprağını sekiz parçaya bölmüş!'],['daphne','Parçalardan ikisini bulduk. Kalanlar anılarınızda saklı: Ouzoud, çiftlik, Roma, Nice, Kotor ve Viyana.'],['simba','Artık nereye istersen uçarız. Prrr!'],['daphne','Sağ alttaki pembe “Balonla uç” düğmesine bas, haritadan gideceğin yeri seç. Her yerden çalışır!']]) }
+    return busyTalk([['simba','Prr! Al bunu: balonun ağı. Kaptanı yakalamak için lazım olacak. Ben de geliyorum!'],['daphne','Yukarıdan bir şey daha gördük: kaptan 14 Kasım yaprağını sekiz parçaya bölmüş!'],['daphne','Parçalardan ikisini bulduk. Kalanlar anılarınızda saklı: Ouzoud, çiftlik, Roma, Nice, Kotor ve Viyana.'],['simba','Artık nereye istersen uçarız. Prrr!'],['daphne','Uçmak için balonun altındaki kahverengi sepete dokun, sonra haritadan gideceğin yeri seç.']]) }
   if(k==='ch3') return startChase();
   if(k==='memo'){ W.running=false; await stageMemo(); startWorld(); await addPiece('roma');
     await busyTalk([['narr','Ressam gülümseyip kartpostalların arkasındaki takvim parçasını uzattı.'],['narr','Sonra kocaman bir kâğıdı açıp sana uzattı: “8 Haziran’da çizdiğim karikatürünüz! Kolezyum’u da köşeye ekledim.”']]);
@@ -1583,9 +1685,9 @@ async function finishHunt(){ W.mode='explore'; actBtn(''); S.done.ch1=true; useI
 /* ---- real pictures: the Rome caricature and four photo-booth strips ---- */
 const CARICATURE='assets/karikatur-roma.jpg';
 const PHOTOS=[
-  {id:'s1', src:'assets/serit-1.jpg', name:'Acı biberli kabin', hint:'Dover Castle’da, masaların arasında', line:'Bu kabinde makine tepedeydi, hep yukarı baktık!'},
+  {id:'s1', src:'assets/serit-1.jpg', name:'Acı biberli kabin', hint:'Dover Castle’da, Haylaz’ın altında', line:'Bu kabinde makine tepedeydi, hep yukarı baktık!'},
   {id:'s2', src:'assets/serit-2.jpg', name:'Kalpli şerit', hint:'Çiftlikte, iki beyaz kazda', line:'XOXO çıkartmalı şeridimiz! Son karede yine öpüşüyoruz...'},
-  {id:'s3', src:'assets/serit-3.jpg', name:'Photo Booth şeridi', hint:'Kalpli Duvar’ın orada, nehir kıyısında', line:'Siyah beyaz Photo Booth şeridimiz! İlk karede bile öpüşmüşüz.'},
+  {id:'s3', src:'assets/serit-3.jpg', name:'Photo Booth şeridi', hint:'Nehir kıyısında, Tonton’da', line:'Siyah beyaz Photo Booth şeridimiz! İlk karede bile öpüşmüşüz.'},
   {id:'s4', src:'assets/serit-4.jpg', name:'Schönbrunn şeridi', hint:'Viyana müzesindeki canavarda', line:'Viyana hayvanat bahçesindeki zebralı kabin! Hâlâ duvarımızda asılı.'},
 ];
 [CARICATURE,...PHOTOS.map(p=>p.src)].forEach(src=>{ const im=new Image(); im.src=src });
@@ -1984,9 +2086,9 @@ async function stageCake(){
    BOOK
    ===================================================================== */
 function stageBook(){
-  const B=CONFIG.book, toms=(S&&S.tom)?S.tom.length:0;
+  const B=CONFIG.book.filter(p=>p.photo), toms=(S&&S.tom)?S.tom.length:0;
   const pages=[`<div class="bpage"><div class="cover"><div class="t">GİZEM<br>DOSYALARI</div><div class="n">${H} & ${E}</div><div style="color:var(--muted)">2 Nisan 2026’dan beri çözülen vakalar: ${B.length}<br>Bulunan gizli domatesler: ${toms}/${NTOM}</div><canvas id="coverCats" width="480" height="220"></canvas><div style="font-weight:800;animation:blink 1.4s infinite">kaydır &gt;</div></div></div>`];
-  B.forEach((p,i)=>pages.push(`<div class="bpage"><div class="file"><div class="ftab">DOSYA #${String(i+1).padStart(2,'0')}</div><div class="fplace">${p.place}</div><div class="fdate">${p.date||''}</div><div class="photo">${p.photo?`<img src="${p.photo}" alt="" draggable="false">`:`<div class="ph">FOTOĞRAF BURAYA</div>`}<div class="sheet"><div class="eyes"><i></i><i></i></div>Çarşafı çek</div><div class="stamp">ÇÖZÜLDÜ</div></div><div class="fcap">${p.caption}</div></div></div>`));
+  B.forEach((p,i)=>pages.push(`<div class="bpage"><div class="file"><div class="ftab">DOSYA #${String(i+1).padStart(2,'0')}</div><div class="fplace">${p.place}</div><div class="fdate">${p.date||''}</div><div class="photo">${p.photo?`<img class="bgb" src="${p.photo}" alt="" draggable="false" loading="lazy"><img class="fg" src="${p.photo}" alt="" draggable="false" loading="lazy">`:`<div class="ph">FOTOĞRAF BURAYA</div>`}<div class="sheet"><div class="eyes"><i></i><i></i></div>Çarşafı çek</div><div class="stamp">ÇÖZÜLDÜ</div></div><div class="fcap">${p.caption}</div></div></div>`));
   if(S && gotPhotos().length) pages.push(`<div class="bpage"><div class="file"><div class="ftab">DOSYA #KABİN</div><div class="fplace">Fotoğraf kabinlerimiz</div><div class="fdate">${gotPhotos().length}/4 şerit bulundu</div><div style="flex:1;min-height:0;display:flex;gap:6px;align-items:stretch;margin-top:8px">${PHOTOS.filter(p=>gotPhotos().includes(p.id)).map((p,i)=>`<img src="${p.src}" alt="" draggable="false" style="flex:1;min-width:0;height:100%;object-fit:contain;transform:rotate(${(i%2?1.5:-1.5)}deg);filter:drop-shadow(0 3px 5px #0006)">`).join('')}</div><div class="fcap">Bütün kabinler, bütün öpücükler.</div></div></div>`);
   if(S && S.inv && S.inv.includes('sketch')) pages.push(`<div class="bpage"><div class="file"><div class="ftab">DOSYA #RESSAM</div><div class="fplace">Roma</div><div class="fdate">Sokak ressamının karikatürü</div><div class="photo revealed" style="background:#efe6d2"><img src="${CARICATURE}" alt="" draggable="false" style="object-fit:contain"></div><div class="fcap">Roma, 8 Haziran 2026. Karikatürümüz.</div></div></div>`);
   pages.push(`<div class="bpage"><div class="letter"><h3>Son dosya: Kalbim</h3>${CONFIG.letter.replace(/\n/g,'<br>')}<br><br><button class="plink" id="replay" style="font-size:14px">Oyunu baştan oyna</button></div></div>`);
