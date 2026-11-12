@@ -214,8 +214,14 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;background:none}
 .bnav button:disabled{opacity:.3}
 #bcount{font-weight:800;color:var(--muted)}
 
-#dev{position:absolute;z-index:99;left:4px;bottom:130px;display:flex;flex-wrap:wrap;gap:3px;max-width:350px}
-#dev button{background:#000c;border:1px solid #fff4;font-size:11px;padding:3px 6px;border-radius:6px}
+#devBtn{position:absolute;z-index:98;left:8px;top:calc(env(safe-area-inset-top) + 118px);font-size:12px;font-weight:800;padding:5px 10px;border-radius:999px;background:#d61f3c;color:#fff;border:2px solid #fff6}
+#dev{position:absolute;z-index:99;left:0;right:0;bottom:0;max-height:72%;overflow:auto;background:rgba(14,9,28,.96);border-top:2px solid var(--gold);padding:12px 12px calc(env(safe-area-inset-bottom) + 14px);display:none}
+#dev.on{display:block}
+#dev h4{margin:10px 0 6px;color:var(--gold);font-size:13px;letter-spacing:1px}
+#dev .g{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+#dev button{background:#33255a;border:1px solid #fff3;color:#fff;font-size:13px;font-weight:700;padding:9px 4px;border-radius:10px;line-height:1.15}
+#dev button.w{background:#5a1630}
+#dev .note{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.35}
 </style>
 </head>
 <body>
@@ -387,7 +393,7 @@ Efişkom`,
 const $ = s => document.querySelector(s);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const H = CONFIG.her, E = CONFIG.him, CN = CONFIG.cats;
-const SAVE_KEY = 'su-gizem-v4';
+const SAVE_KEY = 'su-gizem-v4'+(/dev/.test(location.search)?'-test':'');  // test mode (?dev) keeps its own save
 const store = {
   get(){ try { return JSON.parse(localStorage.getItem(SAVE_KEY) || '{}') } catch(e){ return {} } },
   set(o){ try { localStorage.setItem(SAVE_KEY, JSON.stringify({...store.get(), ...o})) } catch(e){} },
@@ -802,7 +808,7 @@ function talk(lines){ return new Promise(res=>{
     nm.textContent=c.name; nm.style.color=c.color||'';
     tx.textContent=''; typing=true; nx.classList.remove('on');
     let k=0; clearInterval(timer);
-    timer=setInterval(()=>{ k++; tx.textContent=text.slice(0,k); if(k%2===0 && c.p) Sfx.blip(c.pitch);
+    timer=setInterval(()=>{ k+=window.DEVFAST?999:1; k=Math.min(k,text.length); tx.textContent=text.slice(0,k); if(k%2===0 && c.p) Sfx.blip(c.pitch);
       if(k>=text.length){ clearInterval(timer); typing=false; doneAt=Date.now(); nx.classList.add('on') } }, 38);
   }
   L.classList.add('on'); render();
@@ -2129,20 +2135,60 @@ function stageBook(){
   $('#restartBtn').onclick=()=>{ Sfx.init(); store.clear(); begin(null) };
 })();
 
-/* dev shortcuts (local file only): ?dev */
+/* test panel: open the game with ?dev at the end of the link */
 if(/dev/.test(location.search)){
-  const d=document.createElement('div'); d.id='dev';
+  try{ window.DEVFAST=localStorage.getItem('devfast')!=='0' }catch(_){ window.DEVFAST=true }
   const ensure=()=>{ if(!S){ S={...freshState(),intro:true,fol:['scooby']}; A=AREAS[S.area](); resetTrail(); startWorld() } };
-  const acts={
-    pub:()=>goArea('pub',[6.5,4.5]), river:()=>{ addItem('flash'); goArea('river',[10.5,2.5]) }, park:()=>{ S.done.ch1=true; goArea('park',[8.5,6.5]) },
-    embank:()=>{ S.done.ch1=true; goArea('embank',[9.5,3.5]) }, deck:()=>{ S.done.ch1=true; addFollower('joker'); goArea('deck',[5.5,5.5]) },
-    ouzoud:()=>{ S.done.ch1=S.done.ch2=true; goArea('ouzoud',[5.5,8.5]) }, farm:()=>{ S.done.ch1=S.done.ch2=true; goArea('farm',[2.5,7.5]) }, roma:()=>{ S.done.ch1=S.done.ch2=true; goArea('roma',[4.5,8.5]) }, nice:()=>{ S.done.ch1=S.done.ch2=true; goArea('nice',[7.5,7.5]) }, kotor:()=>{ S.done.ch1=S.done.ch2=true; goArea('kotor',[4.5,6.5]) }, viyana:()=>{ S.done.ch1=S.done.ch2=true; goArea('viyana',[8.5,6.5]) },
-    map:()=>openMap(), memo:()=>{ W.running=false; stageMemo() }, quiz:()=>runChapter('ch2'), cake:()=>{ W.running=false; stageCake() }, book:()=>stageBook(), unmask:()=>{ W.running=false; stageUnmask() },
-    'hepsi':()=>{ S.done.ch1=S.done.ch2=S.done.ch3=true; S.pieces=['wall','quiz','ouzoud','farm','roma','nice','kotor','viyana']; S.inv=[]; addItem('net'); ['luka','simba','joker'].forEach(addFollower); goArea('deck',[5.5,5.5]) },
-  };
-  d.innerHTML=Object.keys(acts).map(s=>`<button data-s="${s}">${s}</button>`).join('');
-  d.onclick=e=>{ const s=e.target.dataset.s; if(!s) return; e.stopPropagation(); Sfx.init(); ensure(); acts[s]() };
-  $('#app').appendChild(d);
+  const early=()=>{ S.done.ch1=S.done.ch2=true };
+  const allDone=()=>{ S.done.ch1=S.done.ch2=S.done.ch3=true; S.pieces=['wall','quiz','ouzoud','farm','roma','nice','kotor','viyana']; S.inv=S.inv.filter(k=>k!=='plate'); addItem('net'); ['luka','simba','joker'].forEach(addFollower); save(); renderHud() };
+  const back=()=>{ startWorld() };
+  const G=[
+    ['BÖLÜMLER',[
+      ['Başlangıç (Pub)',()=>goArea('pub',[6.5,4.5])],
+      ['1 · Fener avı',()=>{ addItem('flash'); goArea('river',[10.5,2.5]) }],
+      ['2 · Balon sınavı',()=>runChapter('ch2')],
+      ['3 · Kovalamaca',async()=>{ early(); addFollower('joker'); await goArea('deck',[5.5,5.5]); startChase() }],
+      ['Final · Tuzak',async()=>{ allDone(); S.bait=false; await goArea('deck',[5.5,5.5]); startTrap() }],
+      ['Maskeyi çıkar',()=>{ W.running=false; stageUnmask().then(back) }],
+      ['Pasta',()=>{ W.running=false; stageCake() }],
+      ['Albüm',()=>stageBook()],
+      ['Balon haritası',()=>openMap()],
+    ]],
+    ['YERLER',[
+      ['Ouzoud',()=>{ early(); goArea('ouzoud',[5.5,8.5]) }],
+      ['Çiftlik',()=>{ early(); goArea('farm',[2.5,7.5]) }],
+      ['Roma',()=>{ early(); goArea('roma',[4.5,8.5]) }],
+      ['Nice',()=>{ early(); goArea('nice',[7.5,7.5]) }],
+      ['Kotor',()=>{ early(); goArea('kotor',[4.5,6.5]) }],
+      ['Viyana',()=>{ early(); goArea('viyana',[8.5,6.5]) }],
+      ['Nehir (Tonton)',()=>{ S.done.ch1=true; goArea('river',[10.5,2.5]) }],
+      ['Bahçe (Joker)',()=>{ S.done.ch1=true; goArea('park',[8.5,6.5]) }],
+      ['Tamesis Dock',()=>{ S.done.ch1=true; goArea('deck',[5.5,5.5]) }],
+    ]],
+    ['MİNİ OYUNLAR',[
+      ['Maymun dengesi',()=>{ W.running=false; stageBalance('peanut',1).then(back) }],
+      ['Kotor merdiveni',()=>{ W.running=false; stageClimb().then(back) }],
+      ['Kartpostallar',()=>{ early(); runChapter('memo') }],
+      ['Karikatür',()=>showSketch()],
+      ['Fotoğraf şeritleri',()=>{ S.photos=PHOTOS.map(p=>p.id); save(); renderInv(); showGallery() }],
+    ]],
+    ['AYARLAR',[
+      ['Hızlı yazı: '+(window.DEVFAST?'AÇIK':'KAPALI'),(b)=>{ window.DEVFAST=!window.DEVFAST; try{ localStorage.setItem('devfast',window.DEVFAST?'1':'0') }catch(_){} b.textContent='Hızlı yazı: '+(window.DEVFAST?'AÇIK':'KAPALI') }],
+      ['Her şey açık',()=>{ allDone(); goArea('deck',[5.5,5.5]) }],
+      ['Sıfırla',()=>{ if(confirm('Kayıt silinsin ve oyun baştan başlasın mı?')){ store.clear(); location.reload() } },'w'],
+    ]],
+  ];
+  const d=document.createElement('div'); d.id='dev'; const acts=[];
+  d.innerHTML=G.map(([h,items])=>`<h4>${h}</h4><div class="g">${items.map(([lab,fn,cls])=>{ acts.push(fn); return `<button data-i="${acts.length-1}" class="${cls||''}">${lab}</button>` }).join('')}</div>`).join('')+'<div class="note">Bu panel sadece linkin sonuna ?dev yazınca görünür. Diyalogları ATLA düğmesiyle geçebilirsin.</div>';
+  // every shortcut reloads the page and starts fresh at that spot, so nothing from the previous test leaks into the next one
+  const settings=new Set([acts.length-3,acts.length-1]);
+  d.onclick=e=>{ const b=e.target.closest('button'); if(!b) return; e.stopPropagation(); const i=+b.dataset.i;
+    if(settings.has(i)) return acts[i](b);
+    location.href=location.pathname+'?dev&go='+i };
+  const go=new URLSearchParams(location.search).get('go');
+  if(go!==null && acts[+go]){ history.replaceState(null,'',location.pathname+'?dev'); setTimeout(()=>{ Sfx.init(); ensure(); acts[+go]() },350) }
+  const tb=document.createElement('button'); tb.id='devBtn'; tb.textContent='TEST'; tb.onclick=e=>{ e.stopPropagation(); d.classList.toggle('on') };
+  $('#app').appendChild(d); $('#app').appendChild(tb);
 }
 </script>
 </body>
