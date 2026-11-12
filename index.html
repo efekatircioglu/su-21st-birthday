@@ -798,8 +798,8 @@ function exitEnt(x,y,label,to,spawn){ return ent({ id:'exit-'+to, exit:true, use
     g.font='700 4.6px "Baloo 2",sans-serif'; g.textAlign='center'; g.fillStyle='rgba(0,0,0,.55)'; const w=g.measureText(label).width+5; rrect(sx-w/2,sy+3,w,6.4,3,'rgba(0,0,0,.55)'); g.fillStyle='#fff6e6'; g.fillText(label,sx,sy+7.8);
     this.hit=[sx-14,sy-22,28,34] },
   tap(){ return goArea(to, spawn) } }) }
-function balloonEnt(x,y){ return ent({ id:'balloon', name:'Balon', blocks:()=>[[x,y],[x+1,y],[x,y+1],[x+1,y+1]], use:[x,y+2], depth:x+y+2, attn:()=>(S.area==='park' && has('toblerone') && !S.done.ch2),
-  draw(){ const f=suBehind(x+1,y+1,32,118); if(f){ g.save(); g.globalAlpha=.35 } drawBalloon(x+1,y+1,S.area==='park'&&!S.done.ch2); if(f) g.restore() },
+function balloonEnt(x,y,use){ return ent({ id:'balloon', name:'Balon', blocks:()=>[[x,y],[x+1,y],[x,y+1],[x+1,y+1]], use:use||[x,y+2], depth:x+y+2, attn:()=>(S.area==='park' && has('toblerone') && !S.done.ch2),
+  draw(){ const f=suBehind(x+1,y+1,25,118); if(f){ g.save(); g.globalAlpha=.35 } drawBalloon(x+1,y+1,S.area==='park'&&!S.done.ch2); if(f) g.restore(); const [bx,by]=P(x+1,y+1); this.hit=[bx-34,by-124,68,140] },
   async tap(){
     if(S.area==='park' && !S.done.ch2){
       if(has('toblerone')){ await busyTalk([['su',`${CN.simba}! Bak sana ne getirdim...`],['simba','PRRRR! Toblerone! Tamam tamam, balon kalkıyor! Ama önce benim sınavımı geçmen lazım...']]); useItem('toblerone'); return runChapter('ch2') }
@@ -1066,7 +1066,7 @@ const AREAS = {
       ent({id:'bottle', blocks:()=>[], use:[5,2], pt:[5.5,2.4], depth:7.9, show:()=>S.nice.got && !S.pieces.includes('nice'), attn:()=>true,
         draw(){ const [sx,sy]=P(5.5,2.4); glow(sx,sy-3,14,'200,240,255',.5); g.save(); g.translate(sx,sy-3); g.rotate(-.9+Math.sin(W.t*2)*.08); rrect(-7,-3,12,6,2.5,'rgba(120,200,170,.85)'); rrect(5,-1.6,4,3.2,1,'rgba(120,200,170,.85)'); rrect(8.6,-1.4,1.8,2.8,.6,'#8a5a32'); rrect(-5,-1.6,8,3.2,1,'#f6efd8'); g.restore(); this.hit=[sx-12,sy-14,24,18] },
         async tap(){ await busyTalk([['narr','Şişenin içinde rulo yapılmış bir kâğıt... takvim yaprağının parçası!'],['su','Mesaj şişede, Nice’te. Daha romantik olamazdı.']]); await addPiece('nice'); renderHud() } }),
-      balloonEnt(8,6),
+      balloonEnt(8,6,[7,7]),
     ],
   }),
   /* ---------------------------------------------------------------- KOTOR summit */
