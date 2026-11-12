@@ -1190,7 +1190,7 @@ function monkeyEnts(){
       await busyTalk([['narr',`Maymun ${foodName} görünce sana doğru koştu ve... tek hamlede omzuna, oradan da kafana tırmandı!`],
         ...(!S.ou.balIntro ? [['daphne','Dengede kal! Sola ya da sağa düşecek gibi olursan ters taraftaki düğmeye basılı tut.'],['daphne','Maymun sana dönüp bakarsa hemen GÖZÜNÜ KAÇIR düğmesine bas.'],['daphne','Önce bakar, sonra ağzını “O” yapar, sonra dişlerini takırdatıp kafana vurur. 1 saniye dolarsa saldırır!']] : [])]);
       S.ou.balIntro=true; save();
-      W.running=false; await stageBalance(m.food, level); startWorld();
+      W.running=false; await stageBalance(m.food, level); startWorld(); W.ouCalm=4;
       S.banan--; S.ou[m.id]=true; m.wait=false; save(); Sfx.good(); renderInv();
       const ate = m.food==='peanut' ? 'Maymun aşağı atladı, fıstığı kaptı ve kabuğunu ustaca soydu' : m.food==='banana' ? 'Maymun aşağı atladı, muzu kaptı ve soymaya başladı' : 'Maymun aşağı atladı, çeri domatesi kaptı ve bir ısırıkta yarısını yedi';
       if(m.item==='piece'){ await busyTalk([['narr',`${ate} ve takvim parçasını sana uzattı!`]]); await addPiece('ouzoud') }
@@ -1201,17 +1201,20 @@ function monkeyCharge(m){
   m.charge=.65; m.stage=0; m.tension=0; W.shake=.5; Sfx.screech(); Sfx.slap(); Sfx.bad();
   let dx=S.x-m.x, dy=S.y-m.y; const d=Math.hypot(dx,dy)||1; dx/=d; dy/=d; const bl=blockedSet();
   for(const k of [2,1.5,1]){ const tx=Math.floor(S.x+dx*k), ty=Math.floor(S.y+dy*k); if(inside(tx,ty)&&!bl.has(tx+','+ty)){ S.x=tx+.5; S.y=ty+.5; resetTrail(); break } }
-  W.path=[]; W.cb=null; W.inv=1.2;
+  W.path=[]; W.cb=null; W.inv=1.2; W.ouCalm=2.5;
   if(S.banan>0 && Math.random()<.35){ S.banan--; save(); renderInv(); toast('Maymun üstüne atıldı, tırmaladı ve bir yemi kaptı!',2400) }
   else toast('Maymun üstüne atıldı! Bu bir uyarıydı, uzak dur.',2400);
   m.tx=Math.max(.5,Math.min(A.W-.5,m.x-dx*3)); m.ty=Math.max(.5,Math.min(A.H-.5,m.y-dy*3)); m.pause=0;
 }
 function monkeyUpdate(dt){
   if(!W.mk) return; const bl=blockedSet();
+  // monkeys only get defensive once Su carries food, she is in control (no dialog/card) and a short grace period after arriving has passed
+  const free=!W.busy && !dialogOpen; if(free) W.ouCalm=Math.max(0,(W.ouCalm??4)-dt);
+  const armed=free && S.ou.bananas && S.banan>0 && W.ouCalm<=0;
   for(const m of W.mk){ if(S.ou[m.id] || m.wait){ m.moving=false; m.tension=0; m.stage=0; continue }
     if(m.charge>0){ m.charge-=dt; m.moving=false; continue }
-    const dd=Math.hypot(S.x-m.x,S.y-m.y), near=dd<1.7, still=!W.moving && !W.busy && !dialogOpen;
-    m.tension=Math.max(0,Math.min(3,(m.tension||0)+(near&&still?dt:near?dt*.35:-dt*1.4)));
+    const dd=Math.hypot(S.x-m.x,S.y-m.y), near=dd<1.7, still=!W.moving;
+    m.tension=Math.max(0,Math.min(3,(m.tension||0)+(!armed?-dt*1.4:near&&still?dt:near?dt*.35:-dt*1.4)));
     const st=m.tension>2.4?3:m.tension>1.6?2:m.tension>.8?1:0;
     if(st>(m.stage||0)){
       if(st===1){ Sfx.grunt(); if(!S.ou.warn1){ S.ou.warn1=1; save(); toast('Maymun ağzını “O” yapıp sana bakıyor. Geri çekil!',2400) } }
@@ -1221,7 +1224,7 @@ function monkeyUpdate(dt){
     if(st>0){ m.moving=false; m.flip=((S.x-m.x)-(S.y-m.y))<0; continue }
     m.pause-=dt; if(m.pause>0){ m.moving=false; continue }
     const dx=m.tx-m.x, dy=m.ty-m.y, d=Math.hypot(dx,dy);
-    if(d<.05){ m.pause=1+Math.random()*2.5; let tries=0; do{ m.tx=Math.floor(Math.random()*A.W)+.5; m.ty=Math.floor(Math.random()*A.H)+.5; tries++ } while((bl.has(Math.floor(m.tx)+','+Math.floor(m.ty)) || Math.hypot(m.tx-m.x,m.ty-m.y)>3.5) && tries<30); continue }
+    if(d<.05){ m.pause=1+Math.random()*2.5; let tries=0; do{ m.tx=Math.floor(Math.random()*A.W)+.5; m.ty=Math.floor(Math.random()*A.H)+.5; tries++ } while((bl.has(Math.floor(m.tx)+','+Math.floor(m.ty)) || Math.hypot(m.tx-m.x,m.ty-m.y)>3.5 || Math.hypot(m.tx-S.x,m.ty-S.y)<2.4) && tries<40); continue }
     const sp=Math.min(d,1.4*dt); m.x+=dx/d*sp; m.y+=dy/d*sp; m.moving=true; if(Math.abs(dx-dy)>.01) m.flip=(dx-dy)<0 }
 }
 
@@ -1400,7 +1403,7 @@ async function goArea(to, spawn, instant=false){
   if(to==='river' && !S.done.ch1 && !has('flash')) return busyTalk([['su','Dışarısı zifiri karanlık! Önce bir fener bulmalıyım.'],['scooby','Rarın yanında rir kayıp eşya kutusu vardı...']]);
   if(to==='deck' && !S.done.ch3 && !follows('joker')) return busyTalk([['ghost','BUUU! Teknenin kapısı kapalı!'],['luka',`Miyav... (${CN.luka} arkana saklanıyor. Hayaletleri korkutacak cesur biri lazım.)`],['scooby','Bahçede çok sinirli rir kedi vardı...']]);
   if(!instant){ Sfx.door(); W.busy=true; await fadeOut() }
-  S.area=to; S.x=spawn[0]; S.y=spawn[1]; A=AREAS[to](); W.wave=null; W.shells=[]; W.npu=null; W.boots=0; W.nNext=6; W.spd=1; if(to==='nice' && !S.nice.got){ spawnShell(); spawnShell() } W.mk=null; W.path=[]; W.cb=null; W.snap=true; W.bgKey=null; resetTrail(); save(); renderHud();
+  S.area=to; S.x=spawn[0]; S.y=spawn[1]; A=AREAS[to](); W.wave=null; W.shells=[]; W.npu=null; W.boots=0; W.nNext=6; W.spd=1; if(to==='nice' && !S.nice.got){ spawnShell(); spawnShell() } W.mk=null; W.ouCalm=4; W.path=[]; W.cb=null; W.snap=true; W.bgKey=null; resetTrail(); save(); renderHud();
   if(!instant){ await fadeIn(); W.busy=false }
   showBanner(A.name);
   await onEnter(to);
