@@ -923,10 +923,11 @@ function exitEnt(x,y,label,to,spawn){ return ent({ id:'exit-'+to, exit:true, use
     this.hit=[sx-14,sy-22,28,34] },
   tap(){ return goArea(to, spawn) } }) }
 function balloonEnt(x,y,use){ return ent({ id:'balloon', name:'Balon', blocks:()=>[[x,y],[x+1,y],[x,y+1],[x+1,y+1]], use:use||[x,y+2], depth:x+y+2, attn:()=>(S.area==='park' && has('toblerone') && !S.done.ch2),
-  draw(){ const f=suBehind(x+1,y+1,25,118); if(f){ g.save(); g.globalAlpha=.35 } drawBalloon(x+1,y+1,S.area==='park'&&!S.done.ch2); if(f) g.restore(); const [bx,by]=P(x+1,y+1); this.hit=[bx-16,by-22,32,30] },
+  draw(){ const f=suBehind(x+1,y+1,25,118); if(f){ g.save(); g.globalAlpha=.35 } drawBalloon(x+1,y+1,S.area==='park'&&!S.done.ch2); if(f) g.restore(); const [bx,by]=P(x+1,y+1); this.hit=[bx-16,by-30,32,38] },
   async tap(){
     if(S.area==='park' && !S.done.ch2){
       if(has('toblerone')){ await busyTalk([['su',`${CN.simba}! Bak sana ne getirdim...`],['simba','PRRRR! Toblerone! Tamam tamam, balon kalkıyor! Ama önce benim sınavımı geçmen lazım...']]); useItem('toblerone'); return runChapter('ch2') }
+      if(S.done.ch1){ await busyTalk([['simba','Prrr... Bu balon benim. Bana tatlı bir şey getirmeden kalkmam.'],['scooby','Rıhh... Ren rir şey saklamıştım...'],['narr','Scooby tasmasının arkasından ezik bir Toblerone çıkarıyor.'],['daphne','Scooby! Sen bunu yemedin mi?!'],['scooby','Re-he-he. Az kalsın!']]); addItem('toblerone'); return this.tap() }
       return busyTalk([['simba','Prrr... Bu balon benim. Bana tatlı bir şey getirmeden kalkmam.']]) }
     return openMap() } }) }
 function drawBalloon(cx,cy,withSimba){
@@ -1077,6 +1078,7 @@ const AREAS = {
         draw(){ tree(8,2,56); if(!follows('joker')){ const [sx,sy]=P(8.5,2.5,46); cat(sx-2,sy,'joker',{t:W.t,flip:true,noShadow:true}) } },
         async tap(){ if(follows('joker')) return busyTalk([['narr','Ağaçta artık kimse yok.']]);
           if(has('fish')){ await busyTalk([['su',`${CN.joker}! Gel bakalım, sana balık var.`],['joker','HSSS... *hapur hupur*... Prr.'],['narr',`${CN.joker} ağaçtan atlayıp peşine takıldı. Hâlâ biraz sinirli ama artık senin tarafında!`]]); useItem('fish'); addFollower('joker'); return busyTalk([['daphne',`${CN.joker} hayaletleri korkutabilir! Bahçeden Albert Embankment’a, tekneye gidebiliriz.`]]) }
+          if(S.done.ch1){ await busyTalk([['joker','HSSSSS!'],['narr',`${CN.joker} ağaçtan inmiyor. Karnı aç gibi görünüyor...`],['luka','Miyav! (Luka kalpli duvardan getirdiği balığı önüne bırakıyor.)']]); addItem('fish'); return this.tap() }
           return busyTalk([['joker','HSSSSS!'],['narr',`${CN.joker} ağaçtan inmiyor. Karnı aç gibi görünüyor...`]]) } }),
       ent({id:'bench', blocks:()=>[[1,4],[2,4]], depth:8, draw(){ box3(1.1,4.25,1.8,.45,7,'#7a5230'); box3(1.1,4.05,1.8,.15,15,'#7a5230'); for(const x of [1.2,2.7]) box3(x,4.3,.1,.4,7,'#2a2a30') }}),
       ent({id:'tree2', blocks:()=>[[0,0]], depth:1, draw(){ tree(0,0,48,'#2a6a3a') }}),
@@ -2253,7 +2255,7 @@ if(/dev/.test(location.search)){
       ['Kotor',()=>{ early(); goArea('kotor',[4.5,6.5]) }],
       ['Viyana',()=>{ early(); goArea('viyana',[8.5,6.5]) }],
       ['Nehir (Tonton)',()=>{ S.done.ch1=true; goArea('river',[10.5,2.5]) }],
-      ['Bahçe (Joker)',()=>{ S.done.ch1=true; goArea('park',[8.5,6.5]) }],
+      ['Bahçe (Joker)',()=>{ S.done.ch1=true; addFollower('luka'); addItem('toblerone'); addItem('fish'); goArea('park',[8.5,6.5]) }],
       ['Tamesis Dock',()=>{ S.done.ch1=true; goArea('deck',[5.5,5.5]) }],
     ]],
     ['REFERANSLAR',[
