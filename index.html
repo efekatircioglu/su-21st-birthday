@@ -451,6 +451,10 @@ const LOOK = {
            outfit:'halter', dress:'#cc1a2e', choker:true, legs:'#f7dbc9', shoes:'#d8b096' },
   daphne:{ body:'f', skin:'#f6dac4', skinSh:'#e6b99f', hair:'#de6c2c', hairHi:'#f59a52', hairLo:'#a84a18', style:'bob', iris:'#5f8a3a', lashes:true, brow:'#a84a18', browW:.3, lips:'#c4516a',
            outfit:'dress', dress:'#8e44ad', legs:'#f0c9b0', shoes:'#6b2a8a', headband:'#c084fc', scarf:'#3fb950' },
+  velma: { body:'f', skin:'#f3d2bc', skinSh:'#e0b298', hair:'#6a3a1c', hairHi:'#8f5a30', hairLo:'#4a2410', style:'bob', iris:'#5a3a20', lashes:true, brow:'#5a3018', browW:.32, lips:'#c06a6a', glasses:true,
+           outfit:'sweater', top:'#ef7a1a', skirt:'#c8302e', legs:'#ef7a1a', shoes:'#a8281c' },
+  shaggy:{ body:'m', skin:'#f0caa8', skinSh:'#d8a888', hair:'#9a6a32', hairHi:'#c08a4a', hairLo:'#6a4420', style:'shaggy', iris:'#3a2a1a', brow:'#7a5226', browW:.45, lips:'#b07a6a', goatee:true,
+           outfit:'tee', top:'#7ab83a', legs:'#8a5a2a', shoes:'#3a2416' },
   // Efişkom (Thames photo): dark brown hair swept back with a little wave, clean-shaven, navy linen shirt open at the collar, thin chain, white trousers
   efe:   { body:'m', skin:'#e8be9e', skinSh:'#d29f80', hair:'#2a1c15', hairHi:'#5e4434', hairLo:'#150d09', style:'swept', iris:'#4a2c18', brow:'#1d140f', browW:.5, lips:'#b87c70', grin:true,
            outfit:'shirt', top:'#1e2840', legs:'#eeeae2', shoes:'#16121b' },
@@ -498,6 +502,15 @@ function human(sx,sy,L,an={}){
     for(let k=0;k<5;k++) circ(0,-26.6+k*1.6,.16,'rgba(255,255,255,.55)');
     pathFill([[-3.1,-27.6],[-2.2,-27.9],[-2.6,-27.2]],'rgba(255,255,255,.75)');
     g.strokeStyle='rgba(255,255,255,.08)'; g.lineWidth=.3; for(const x of [-2.8,2.6]){ g.beginPath(); g.moveTo(x,-29); g.quadraticCurveTo(x+.4,-24,x,-19.6); g.stroke() } }
+  else if(L.outfit==='sweater'){
+    g.fillStyle=L.skirt; g.beginPath(); g.moveTo(-WA-.4,-22.6); g.lineTo(WA+.4,-22.6); g.lineTo(WA+1.8,-15.6); g.quadraticCurveTo(0,-15,-WA-1.8,-15.6); g.closePath(); g.fill();
+    g.strokeStyle='rgba(0,0,0,.18)'; g.lineWidth=.2; for(const x of [-2.4,-.8,.8,2.4]){ g.beginPath(); g.moveTo(x*.55,-22.4); g.lineTo(x,-15.5); g.stroke() }
+    g.fillStyle=tor(0,L.top); g.beginPath(); g.moveTo(-SH,-30.4); g.quadraticCurveTo(-SH,-31.6,-SH+1.5,-31.6); g.lineTo(SH-1.5,-31.6); g.quadraticCurveTo(SH,-31.6,SH,-30.4); g.quadraticCurveTo(SH-.4,-26,WA+.6,-22); g.lineTo(-WA-.6,-22); g.quadraticCurveTo(-SH+.4,-26,-SH,-30.4); g.fill();
+    rrect(-1.6,HY+5.2,3.2,3.4,1.2,shade(L.top,-.06)); for(let k=0;k<3;k++) line(-1.4,HY+5.8+k*.9,1.4,HY+5.8+k*.9,.15,'rgba(0,0,0,.15)');
+    rrect(-WA-.6,-23,2*(WA+.6),1.1,.5,shade(L.top,-.12)) }
+  else if(L.outfit==='tee'){
+    g.fillStyle=tor(0,L.top); g.beginPath(); g.moveTo(-SH,-30.4); g.quadraticCurveTo(-SH-.2,-31.4,-SH+1.4,-31.6); g.lineTo(SH-1.4,-31.6); g.quadraticCurveTo(SH+.2,-31.4,SH,-30.4); g.lineTo(4.2,-19.4); g.quadraticCurveTo(0,-18.9,-4.2,-19.4); g.closePath(); g.fill();
+    pathFill([[-1.2,-31.8],[1.2,-31.8],[0,-29.8]],SK); line(-1.2,-31.7,0,-29.8,.25,shade(L.top,-.2)); line(1.2,-31.7,0,-29.8,.25,shade(L.top,-.2)) }
   else if(L.outfit==='corset'){
     rrect(-SH-.4,-31.8,2*SH+.8,3.4,1.6,SK); g.fillStyle=SS; g.globalAlpha=.35; g.beginPath(); g.ellipse(0,-28.6,2.2,.5,0,0,TAU); g.fill(); g.globalAlpha=1;
     // lace skirt
@@ -514,9 +527,10 @@ function human(sx,sy,L,an={}){
     g.strokeStyle='rgba(0,0,0,.15)'; g.lineWidth=.3; g.beginPath(); g.moveTo(-WA,-24); g.quadraticCurveTo(0,-23.4,WA,-24); g.stroke() }
   // arms
   for(const s of [-1,1]){ g.save(); g.translate(s*(SH-.55),-30.4); g.rotate(-ph*.42*s + s*.07);
-    const aw=F?.82:1.02, armCol=(L.outfit==='jacket'||L.outfit==='shirt')?L.top:SK;
+    const aw=F?.82:1.02, armCol=(L.outfit==='jacket'||L.outfit==='shirt'||L.outfit==='sweater')?L.top:SK;
     g.fillStyle=armCol; g.beginPath(); g.moveTo(-aw,0); g.lineTo(aw,0); g.quadraticCurveTo(aw*.9,6,aw*.68,11.6); g.lineTo(-aw*.68,11.6); g.quadraticCurveTo(-aw*.9,6,-aw,0); g.fill();
     if(L.outfit==='dress') rrect(-aw-.15,-.2,2*aw+.3,3.4,.9,L.dress);
+    if(L.outfit==='tee') rrect(-aw-.2,-.2,2*aw+.4,3.8,.9,L.top);
     if(L.outfit==='jacket'||L.outfit==='shirt') rrect(-aw*.72,10.8,aw*1.44,.9,.3,shade(L.top,(L.outfit==='shirt'?.12:-.3)));
     g.fillStyle=SK; g.beginPath(); g.ellipse(0,12.6,aw*.82,1.05,0,0,TAU); g.fill(); g.restore() }
   if(L.ruffle){ g.fillStyle=L.ruffle; g.beginPath(); g.moveTo(-SH-1.5,-30); g.quadraticCurveTo(0,-28.6,SH+1.5,-30); g.lineTo(SH+1.5,-28.6); g.quadraticCurveTo(0,-27.4,-SH-1.5,-28.6); g.closePath(); g.fill();
@@ -542,6 +556,7 @@ function human(sx,sy,L,an={}){
       g.strokeStyle='rgba(120,70,60,.35)'; g.lineWidth=.12; g.beginPath(); g.moveTo(cx-.75,EY+.25); g.quadraticCurveTo(cx,EY+.62,cx+.8,EY+.2); g.stroke();
       if(L.lashes){ g.fillStyle='#2b1a14'; g.beginPath(); g.moveTo(cx+s*(ew-.15),EY-.32); g.quadraticCurveTo(cx+s*(ew+.2),EY-.1,cx+s*(ew+.5),EY-.42); g.quadraticCurveTo(cx+s*(ew+.15),EY+.12,cx+s*(ew-.05),EY+.06); g.closePath(); g.fill() }
       g.strokeStyle='rgba(150,100,90,.3)'; g.lineWidth=.12; g.beginPath(); g.moveTo(cx-.8,EY-.85); g.quadraticCurveTo(cx,EY-1.4,cx+.85,EY-.8); g.stroke() } }
+  if(L.glasses){ g.strokeStyle='#2a1a12'; g.lineWidth=.42; for(const s of [-1,1]){ g.beginPath(); g.ellipse(s*EX,EY+.05,1.45,1.15,0,0,TAU); g.stroke(); line(s*(EX+1.45),EY-.15,s*4.3,EY-.55,.3,'#2a1a12') } line(-EX+1.45,EY-.05,EX-1.45,EY-.05,.35,'#2a1a12'); ell(-EX-.4,EY-.4,.5,.25,'rgba(255,255,255,.35)',-.4); ell(EX-.4,EY-.4,.5,.25,'rgba(255,255,255,.35)',-.4) }
   if(an.shades){ for(const s of [-1,1]){ rrect(s*EX-1.2,EY-.78,2.4,1.45,.6,'#15111c'); rrect(s*EX-.85,EY-.55,.8,.35,.17,'rgba(255,255,255,.45)') } line(-.65,EY-.3,.65,EY-.3,.3,'#15111c') }
   if(L.brow) for(const s of [-1,1]){ g.strokeStyle=L.brow; g.lineWidth=L.browW||.3; g.lineCap='round'; g.beginPath(); g.moveTo(s*.75,EY-1.55); g.quadraticCurveTo(s*1.9,EY-2.25,s*2.95,EY-1.6); g.stroke() }
   // nose
@@ -559,6 +574,7 @@ function human(sx,sy,L,an={}){
   else { g.strokeStyle='#8a4c44'; g.lineWidth=.26; g.lineCap='round'; g.beginPath(); g.moveTo(-1.35,MY-.1); g.quadraticCurveTo(0,MY+.45,1.35,MY-.15); g.stroke(); g.strokeStyle='rgba(150,80,70,.35)'; g.lineWidth=.2; g.beginPath(); g.moveTo(-.6,MY+.7); g.quadraticCurveTo(0,MY+.95,.6,MY+.7); g.stroke() }
   if(L.beard){ g.fillStyle='rgba(42,28,20,.24)'; g.beginPath(); g.moveTo(-4.3,EY+.6); g.bezierCurveTo(-4.1,HY+3.6,-2.6,HY+5.4,0,HY+5.6); g.bezierCurveTo(2.6,HY+5.4,4.1,HY+3.6,4.3,EY+.6); g.quadraticCurveTo(3.4,HY+3.2,1.6,HY+2.6); g.quadraticCurveTo(0,HY+2.3,-1.6,HY+2.6); g.quadraticCurveTo(-3.4,HY+3.2,-4.3,EY+.6); g.fill();
     g.fillStyle='rgba(42,28,20,.3)'; g.beginPath(); g.moveTo(-1.5,HY+2.7); g.quadraticCurveTo(0,HY+2.1,1.5,HY+2.7); g.quadraticCurveTo(0,HY+3.05,-1.5,HY+2.7); g.fill() }
+  if(L.goatee){ g.fillStyle=L.hairLo||'#5a3a1a'; g.beginPath(); g.ellipse(0,HY+4.9,.85,.8,0,0,TAU); g.fill() }
   // hair in front
   if(L.style==='longdown'){
     g.fillStyle=hairGrad(HY-6.8,HY); g.beginPath(); g.moveTo(-4.8,HY); g.bezierCurveTo(-5.3,HY-4.6,-3.2,HY-6.9,0,HY-6.9); g.bezierCurveTo(3.2,HY-6.9,5.3,HY-4.6,4.8,HY);
@@ -794,6 +810,7 @@ const CHAR = {
   luka:{name:CN.luka,color:'#d0d8e0',p:'luka',pitch:1.6}, joker:{name:CN.joker,color:'#ff8ab0',p:'joker',pitch:1.1},
   simba:{name:CN.simba,color:'#ffb85a',p:'simba',pitch:1.4}, ghost:{name:'Hayalet Kaptan',color:'#9be15d',p:'captain',pitch:.5},
   monster:{name:'Canavar',color:'#7cc4ff',p:'monster',pitch:.55},
+  velma:{name:'Velma',color:'#ffa040',p:'velma',pitch:1.1}, shaggy:{name:'Shaggy',color:'#9be15d',p:'shaggy',pitch:.95},
   haylaz:{name:'Haylaz',color:'#f0e6d8',p:'haylaz',pitch:1.9}, efecat:{name:'Turuncu Efe',color:'#ffb060',p:'efecat',pitch:1.2}, tonton:{name:'Tonton',color:'#c2b6a2',p:'tonton',pitch:.45},
   pismaniye:{name:'Pişmaniye',color:'#ffffff',p:'pismaniye',pitch:2}, gevrek:{name:'Gevrek',color:'#d8b890',p:'gevrek',pitch:1.8},
 };
@@ -877,7 +894,7 @@ const ITEMS = { flash:['Fener','flash'], toblerone:['Toblerone','toblerone'], fi
 const TOMS = { pub:[7,8], river:[10,4], park:[0,3], embank:[1,3], deck:[9,6], ouzoud:[9,8], farm:[0,7], roma:[8,8], nice:[10,5], kotor:[1,6], viyana:[0,7] };
 const NTOM = Object.keys(TOMS).length;
 let S=null;
-function freshState(){ return { area:'pub', x:6.5, y:4.5, inv:[], fol:[], done:{}, tom:[], seen:{}, intro:false, hunt:{}, pieces:[], ou:{}, farm:{fed:{}}, banan:0, nice:{shells:0}, kotor:{}, vi:{}, roma:{} } }
+function freshState(){ return { area:'street', x:5.5, y:3.5, metDaphne:false, inv:[], fol:[], done:{}, tom:[], seen:{}, intro:false, hunt:{}, pieces:[], ou:{}, farm:{fed:{}}, banan:0, nice:{shells:0}, kotor:{}, vi:{}, roma:{} } }
 function save(){ if(S) store.set({S}) }
 const has=k=>S.inv.includes(k), follows=k=>S.fol.includes(k);
 function addItem(k){ if(!has(k)){ S.inv.push(k); save(); renderInv(k); Sfx.item() } }
@@ -893,6 +910,7 @@ const W={ running:false, last:0, t:0, camX:0, camY:0, path:[], cb:null, moving:f
    ===================================================================== */
 function ent(o){ return Object.assign({ blocks:()=>[], depth:0, show:()=>true, attn:()=>false, hit:null }, o) }
 function exitWanted(to){ const a=S.area, J=follows('joker'), hunt=S.pieces.length>=NP;
+  if(a==='street'&&to==='pub') return !S.metDaphne;
   if(a==='pub'&&to==='river') return has('flash')&&!S.done.ch1;
   if(a==='river'&&to==='park') return S.done.ch1;
   if(a==='park'&&to==='embank') return J&&(!S.done.ch3||hunt)&&!S.done.finale;
@@ -924,6 +942,52 @@ function drawBalloon(cx,cy,withSimba){
   rrect(ex-5,ey+R*1.2,10,3,1,'#7a4a22') }
 
 const AREAS = {
+  street: () => mkArea({ name:'Great Dover Street', W:10, H:7, top:150, sky:'night', scene:'london', base:'#4a4650',
+    floor:(x,y)=> y<=2 ? ((x+y)%2?'#8e8983':'#86817b') : y===3 ? '#a9a49d' : ((x+y)%2?'#3b3a42':'#37363e'),
+    back(){
+      fR(0,0,0,7,64,'#5a3426'); for(let v=4;v<64;v+=4) fR(0,0,v,7,v+.35,'rgba(0,0,0,.18)');
+      for(const u of [3.4,5.4]){ fR(0,u,30,u+1.1,46,'#1d2440'); fR(0,u+.08,31,u+1.02,45,'#2a3458') }
+      fL(0,0,0,10,84,'#5e3324'); for(let v=36;v<84;v+=3.2) fL(0,0,v,10,v+.3,'rgba(0,0,0,.16)');
+      fL(0,0,0,10,28,'#1d3a2c'); fL(0,0,0,10,2,'#14281f');
+      for(const [u0,u1] of [[.6,2.6],[3,5.1],[7.6,9.6]]){ fL(0,u0,5,u1,24,'#2a1a10'); const [ax,ay]=P(u0,0,23),[bx,by]=P(u0,0,6); const gr=g.createLinearGradient(ax,ay,bx,by); gr.addColorStop(0,'#ffd88a'); gr.addColorStop(1,'#e8962e'); fL(0,u0+.1,6,u1-.1,23,gr); for(let u=u0+.55;u<u1-.1;u+=.55) fL(0,u,6,u+.05,23,'#2a1a10'); fL(0,u0+.1,14.5,u1-.1,15,'#2a1a10') }
+      fL(0,5.6,0,7.2,25,'#2a1a10'); fL(0,5.75,0,7.05,24,'#3a2416'); fL(0,5.85,16,6.95,23,'#ffcf7a'); const [kx,ky]=P(6.8,0,10); circ(kx,ky,.7,'#d4a72c');
+      fL(0,0,28,10,36,'#16301f'); fL(0,0,28,10,28.6,'#d4a72c'); fL(0,0,35.4,10,36,'#d4a72c'); wallText('y',5,32,'THE DOVER CASTLE','#f6d26a',6.4);
+      for(const u of [1.2,3.6,6.4,8.8]){ fL(0,u-.1,44,u+1.1,62,'#e8e0cc'); fL(0,u,45,u+1,61,'#1a2240'); fL(0,u+.47,45,u+.53,61,'#e8e0cc'); fL(0,u,52.7,u+1,53.3,'#e8e0cc') }
+      for(const u of [1.2,8.8]) fL(0,u,45,u+1,61,'rgba(255,200,120,.35)');
+      pic('x',.9,2.5,6,24,()=>{ g.fillStyle='#efe6cf'; g.beginPath(); g.moveTo(0,4); g.lineTo(100,0); g.lineTo(96,100); g.lineTo(60,92); g.lineTo(52,100); g.lineTo(4,96); g.closePath(); g.fill();
+        g.textAlign='center'; g.fillStyle='#b5102a'; g.font='900 26px "Baloo 2",sans-serif'; g.fillText('KAYIP',50,30); g.fillStyle='#2a2028'; g.font='800 17px "Baloo 2",sans-serif'; g.fillText('14 KASIM',50,54); g.font='700 9px "Baloo 2",sans-serif'; g.fillText('Görenler Dover',50,72); g.fillText('Castle’a haber versin',50,83) });
+      wallShade('y',10,84); wallShade('x',7,64);
+    },
+    deco(){ for(let x=.2;x<10;x+=1.4){ const a=P(x,5.48), b=P(x+.8,5.48); line(a[0],a[1],b[0],b[1],.9,'#d8b43a') } },
+    anim(t){
+      for(let k=0;k<7;k++){ const x=((t*.05+k*.21)%1)*16-3, [fx,fy]=P(x,2.5+(k%3)*1.6); g.fillStyle=`rgba(205,212,232,${.05+.02*Math.sin(t+k)})`; g.beginPath(); g.ellipse(fx,fy,46,11,0,0,TAU); g.fill() }
+      if(Math.sin(t*23)>.93) fL(0,0,28,10,36,'rgba(0,0,0,.45)');
+      const peek=(W.introGhost||0)>0 || (S && S.intro && (t%12)<1.3);
+      if(W.introGhost>0) W.introGhost-=1/60;
+      if(peek){ g.save(); g.beginPath(); const q=[P(3.6,0,45),P(4.6,0,45),P(4.6,0,61),P(3.6,0,61)]; q.forEach((p,i)=>i?g.lineTo(...p):g.moveTo(...p)); g.closePath(); g.clip(); const [gx,gy]=P(4.1,0,44); g.globalAlpha=.85; ghost(gx,gy,{t,kind:'captain',scale:.55,noShadow:true,float:2}); g.restore() } },
+    ents:[
+      ent({id:'van', blocks:()=>[[6,4],[7,4],[8,4],[6,5],[7,5],[8,5]], depth:13,
+        draw(){ const x=5.9,y=4.15,w=3.2,d=1.5; const [cx,cy]=P(x+w/2,y+d/2); softShadow(cx,cy+2,42,12,.35); const hb=P(x+w+1.4,y+d/2,0); glow(hb[0],hb[1],42,'255,240,190',.16);
+          box(x,y,w,d,19,'#e8f2ef','#63c4b8','#4aa89c',3); fL(y+d,x+.05,3,x+w-.05,8.5,'#9be15d'); fR(x+w,y+.05,3,y+d-.05,8.5,'#8ad04c');
+          fL(y+d,x+.25,12,x+1.15,19,'#1d2a48'); fL(y+d,x+1.3,12,x+2.2,19,'#1d2a48'); fL(y+d,x+1.3,12,x+2.2,19,'rgba(255,200,120,.22)'); fR(x+w,y+.12,11,y+d-.12,19.5,'#26365e');
+          for(const [u,z,c] of [[x+.7,6,'#ff9f1c'],[x+1.6,5.4,'#ff5d8f'],[x+2.5,6.2,'#ff9f1c']]){ const [fx,fy]=P(u,y+d,z); for(let i=0;i<5;i++){ const a=i/5*TAU; circ(fx+Math.cos(a)*1.4,fy+Math.sin(a)*1.4,1,c) } circ(fx,fy,.8,'#ffe08a') }
+          for(const u of [x+.6,x+w-.6]){ const [wx,wy]=P(u,y+d,2.6); ell(wx,wy,3.2,3.6,'#1a1a1e'); ell(wx,wy,1.4,1.6,'#9a9aa8') }
+          for(const v of [y+.3,y+d-.3]){ const [hx,hy]=P(x+w,v,6); glow(hx,hy,8,'255,240,190',.7); circ(hx,hy,1.1,'#fffbe0') } },
+        tap(){ return busyTalk([['narr','Minibüsün içi atıştırmalık paketleriyle dolu. Arka koltukta bir harita, bir büyüteç ve yarım kalmış bir sandviç var.'],['shaggy','Hey! O sandviç rezerve!']]) } }),
+      ent({id:'velma', blocks:()=>[[4,4]], pt:[4.5,4.5], use:[3,4], depth:9,
+        draw(){ const [sx,sy]=P(4.5,4.5); human(sx,sy,LOOK.velma,{t:W.t,flip:true}); this.hit=[sx-8,sy-48,16,50] },
+        tap(){ return busyTalk(!S.metDaphne ? [['velma','Daphne içeride. Kapı tam karşında, Su.'],['velma','Şu afişe de bak: biri senin günün için “kayıp” ilanı asmış. Jinkies...']] : [['velma','Jinkies... Bu gizem fazlasıyla kişisel. Biri senin için çok uğraşmış.'],['velma','İpucu: Hayalet Kaptan en sevdiğin yerlere ve anılarına saklanıyor.']]) } }),
+      ent({id:'shaggy', blocks:()=>[[5,6]], pt:[5.5,6.5], use:[4,6], depth:12,
+        draw(){ const [sx,sy]=P(5.5,6.5); human(sx,sy,LOOK.shaggy,{t:W.t,flip:true,hold(){ rrect(3.6,-19.6,4.4,1.2,.5,'#e8c070'); rrect(3.5,-20.5,4.6,.9,.4,'#7ab83a'); rrect(3.6,-21.6,4.4,1.2,.5,'#e8c070') }}); this.hit=[sx-8,sy-48,16,50] },
+        tap(){ return busyTalk([['shaggy','Like, ben buradan hiç ayrılmıyorum. Biri bu minibüsteki atıştırmalıkları korumalı!'],['scooby','Rummy!'],['shaggy', S.metDaphne ? 'Zoinks! Hâlâ o hayaleti mi kovalıyorsunuz?' : 'Sen git, Su. Biz arkandayız... yani, uzaktan.']]) } }),
+      ent({id:'poster', use:[0,2], flat:true, attn:()=>!S.seen.poster,
+        draw(){ const a=P(0,.9,24), b=P(0,2.5,6); this.hit=[Math.min(a[0],b[0])-4,Math.min(a[1],b[1])-4,Math.abs(b[0]-a[0])+8,Math.abs(b[1]-a[1])+14] },
+        tap(){ S.seen.poster=true; save(); return busyTalk([['narr','Duvarda yırtık bir afiş: “KAYIP: 14 KASIM. Görenler Dover Castle’a haber versin.”'],['su','14 Kasım... benim doğum günüm. Bir gün nasıl kaybolur ki?'],['scooby','Ruh-roh...']]) } }),
+      ent({id:'slamp1', blocks:()=>[[2,3]], depth:5, draw(){ lamp(2.5,3.5,42,!(Math.sin(W.t*17+1)>.96)) }}),
+      ent({id:'slamp2', blocks:()=>[[9,3]], depth:12, draw(){ lamp(9.5,3.5,42,true) }}),
+      exitEnt(6,0,'Dover Castle','pub',[6.5,4.5]),
+    ],
+  }),
   pub: () => mkArea({ name:'Dover Castle', W:9, H:9, top:100, sky:'night', scene:'london', base:'#7a4030',
     floor:(x,y)=>((x+y)%2?'#d6a565':'#c69454'),
     back(){
@@ -958,7 +1022,7 @@ const AREAS = {
       ent({id:'plant2', blocks:()=>[[0,8]], depth:9, draw(){ plant(0,8) }}),
       ent({id:'lost', blocks:()=>[[1,7]], use:[2,7], depth:9, attn:()=>!has('flash')&&!S.done.ch1,
         draw(){ box3(1.15,7.15,.7,.7,12,'#a8783f',0,'#c9955a'); const [sx,sy]=P(1.5,7.5,12); g.font='800 3.6px "Baloo 2",sans-serif'; g.textAlign='center'; g.fillStyle='#3b2a14'; g.fillText('KAYIP EŞYA',sx,sy+.8) },
-        async tap(){ if(!has('flash') && !S.done.ch1){ await busyTalk([['narr','Barın yanındaki kayıp eşya kutusunu karıştırdın...'],['scooby','Rummy! Rir fener!']]); addItem('flash'); return busyTalk([['daphne','Harika! Şimdi kapıdan çık, nehir kenarındaki kalpli duvara gidelim.']]) }
+        async tap(){ if(!has('flash') && !S.done.ch1){ await busyTalk([['narr','Barın yanındaki kayıp eşya kutusunu karıştırdın... Velma’nın geçen sefer unuttuğu fener!'],['scooby','Rummy! Rir fener!']]); addItem('flash'); return busyTalk([['daphne','Harika! Şimdi kapıdan çık, nehir kenarındaki kalpli duvara gidelim.']]) }
           return busyTalk([['narr','Kutuda bir şemsiye, tek bir eldiven ve eski bir bulmaca kitabı var.']]) } }),
       ent({id:'daphne', blocks:()=>[[4,5]], pt:[4.5,5.5], use:[4,6], depth:10,
         draw(){ const [sx,sy]=P(4.5,5.5); human(sx,sy,LOOK.daphne,{t:W.t,flip:true}); this.hit=[sx-10,sy-44,20,46] },
@@ -1235,7 +1299,7 @@ const AREAS = {
       ent({id:'monster', pt:[6.5,6.5], attnAt:[6.5,6.5,52], blocks:()=>[[6,6]], use:[6,7], depth:13, attn:()=>!gotPhotos().includes('s4'),
         draw(){ const [sx,sy]=P(6.5,6.5); fuzzMonster(sx,sy,{t:W.t,scale:1.45}); this.hit=[sx-17,sy-46,34,48] },
         async tap(){ if(gotPhotos().includes('s4')) return busyTalk([['monster','Grr! (Kocaman sarı gözleriyle sana bakıp sırıtıyor.)'],['su','Sen de bizim evin canavarısın. Tamam, korkmuyorum artık.']]);
-          await busyTalk([['narr','Tablolardan birinden mavi, tüylü bir canavar fırlıyor! Tek boynuz, kocaman sarı gözler, sivri dişler...'],['monster','GRRRAAAH!'],['su','Aaa! ...Dur bir dakika. Sen bizim evdeki tablodaki canavarsın!'],['monster','Grr... evet. Burada her şey dönüyor, ben de saklanıyordum.'],['monster','Kaptan kaçarken bunu düşürdü. Zebralı bir şey, Schönbrunn yazıyor. Senin olmalı.']]);
+          await busyTalk([['narr','Tablolardan birinden mavi, tüylü bir canavar fırlıyor! Tek boynuz, kocaman sarı gözler, sivri dişler...'],['monster','GRRRAAAH!'],['su','Aaa! ...Dur bir dakika. Sen bizim evdeki tablodaki canavarsın!'],['su','Shaggy burada olsaydı çoktan minibüse kaçmıştı.'],['monster','Grr... evet. Burada her şey dönüyor, ben de saklanıyordum.'],['monster','Kaptan kaçarken bunu düşürdü. Zebralı bir şey, Schönbrunn yazıyor. Senin olmalı.']]);
           return givePhoto('s4') } }),
       ...PAINTINGS.map(pz=>ent({id:'pz-'+pz.id, use:pz.use, flat:true, attnAt: pz.plane==='y' ? [(pz.r[0]+pz.r[1])/2,0,pz.r[3]+8] : [0,(pz.r[0]+pz.r[1])/2,pz.r[3]+8],
         draw(){ const [u0,u1,v0,v1]=pz.r; const pts=pz.plane==='y'?[P(u0,0,v0),P(u1,0,v0),P(u0,0,v1),P(u1,0,v1)]:[P(0,u0,v0),P(0,u1,v0),P(0,u0,v1),P(0,u1,v1)]; const xs=pts.map(q=>q[0]), ys=pts.map(q=>q[1]); this.hit=[Math.min(...xs),Math.min(...ys),Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys)] },
@@ -1567,6 +1631,7 @@ async function goArea(to, spawn, instant=false){
 }
 function showBanner(t){ const b=$('#banner'); b.textContent=t; b.classList.add('on'); clearTimeout(b._t); b._t=setTimeout(()=>b.classList.remove('on'),2000) }
 async function onEnter(to){
+  if(to==='pub' && !S.metDaphne){ await pubIntro(); return }
   if(to==='river' && !S.done.ch1){ await runChapter('ch1'); return }
   if(to==='deck' && !S.done.ch3){ await runChapter('ch3'); return }
   if(S.seen[to]) return; S.seen[to]=true; save();
@@ -1611,6 +1676,7 @@ function colosseum(x,y,s){ g.fillStyle='#d8a870'; g.beginPath(); g.moveTo(x-64*s
 
 /* ---------- HUD ---------- */
 function goalText(){
+  if(S.area==='street' && !S.metDaphne) return '<b>Hedef:</b> Dover Castle pub’ına gir';
   if(W.mode==='hunt') return `<b>Hedef:</b> Karanlıkta ipuçlarını bul (${Object.keys(S.hunt||{}).length}/5)`;
   if(W.mode==='chase') return '<b>Hedef:</b> Hayaletlere yakalanmadan atıştırmalık topla';
   if(S.area==='ouzoud' && !S.pieces.includes('ouzoud')) return S.banan>0||S.ou.bananas ? '<b>Hedef:</b> Maymunlara dokunup yem ver, üstüne tırmanınca dengede kal' : '<b>Hedef:</b> Tezgâhtan maymun yemi al';
@@ -1832,12 +1898,51 @@ async function throwNet(){
   if(d<.75+T.miss*.12){ T.done=true; T.x=5.5; T.y=3.5; actBtn(''); Sfx.fanfare(); W.shake=.3; await sleep(900);
     await busyTalk([['daphne','YAKALADIK!'],['su','Son parça kaptanın cebinden düştü... 14 Kasım tamamlandı!'],['daphne','Peki... bu maskenin altındaki kim acaba?'],['su','Bakalım...']]);
     W.running=false; await stageUnmask();
-    await talk([['su',`${E.toLocaleUpperCase('tr-TR')}?!`],['efe','Evet, benim! Ve bu planı başaracaktım...'],['efe','...eğer sen ve o meraklı kedilerin olmasaydı!'],['joker',`HSSS! (${CN.joker} yine de bir pati atıyor.)`],['efe',`Aslında doğum gününü çalmadım ${H}... Sadece sana bir sürpriz hazırlamak için sakladım.`],['daphne','Gizem çözüldü! 14 Kasım geri geldi!'],['scooby','Ryi ki roğdun, Ru!']]);
+    await talk([['su',`${E.toLocaleUpperCase('tr-TR')}?!`],['efe','Evet, benim! Ve bu planı başaracaktım...'],['efe','...eğer sen ve o meraklı kedilerin olmasaydı!'],['joker',`HSSS! (${CN.joker} yine de bir pati atıyor.)`],['efe',`Aslında doğum gününü çalmadım ${H}... Sadece sana bir sürpriz hazırlamak için sakladım.`],['daphne','Gizem çözüldü! 14 Kasım geri geldi!'],['narr','Kapıdan Velma ile Shaggy nefes nefese içeri dalıyor.'],['velma','Jinkies! Hayalet Kaptan... Efişkom muymuş?!'],['shaggy','Zoinks! Ve elinde koca bir tiramisu var! Like, bir dilim alabilir miyiz?'],['scooby','Rummy!'],['scooby','Ryi ki roğdun, Ru!']]);
     S.done.finale=true; save(); await stageCake(); stageBook() }
   else { T.miss++; T.spd=Math.max(.45,T.spd*.8); Sfx.bad(); toast(T.miss===1?'Kaçtı! Tam yemin üstündeyken at':'Tekrar dene, bu sefer daha yavaş') }
 }
 
 /* ---------- start / resume ---------- */
+async function streetIntro(){
+  W.busy=true; W.introGhost=0;
+  await card('13 KASIM · 23:41','Great Dover Street','Borough, Londra');
+  await sleep(500);
+  await talk([
+    ['narr','Gece yarısına az kaldı. Minibüsün motoru sustu; sokağı yoğun bir sis kaplıyor.'],
+    ['velma','Tamam ekip. Daphne’nin mesajı tam olarak şöyle: “Dover Castle’a gelin. Bu gece biri bir günü çalacak.”'],
+    ['shaggy','Like... bir günü nasıl çalarsın ki? Takvimi mi kaçıracaklar?'],
+    ['scooby','Ruh-roh...'],
+    ['velma','Bir tuhaflık daha var: Yolda gördüğümüz bütün saatler 23:59’da durmuştu.'],
+  ]);
+  W.introGhost=2.4; Sfx.spooky(); await sleep(1400);
+  await talk([
+    ['narr','Pub’ın üst katındaki pencerede bir şey kıpırdıyor... Beyaz, şapkalı bir gölge. Ve bir anda yok oluyor.'],
+    ['shaggy','Zoinks! Gördünüz mü onu?! Ben minibüste kalıyorum. Atıştırmalık nöbeti!'],
+    ['velma',`Shaggy ile ben burada nöbet tutarız. ${H}, sen içeri gir. Daphne seni bekliyor.`],
+    ['scooby',`Ren de ${H} ile gidiyorum! Rooby-Rooby-Roo!`],
+    ['velma','Gitmek istediğin yere dokun. Üstünde sarı ünlem olan şeylere de bak... şu duvardaki afiş mesela.'],
+  ]);
+  S.intro=true; S.fol=['scooby']; resetTrail(); renderInv(); save(); renderHud(); W.busy=false }
+async function pubIntro(){
+  W.busy=true; await sleep(300);
+  await talk([
+    ['narr','İçerisi sıcak ve loş. Masalardan birinde tanıdık bir yüz bekliyor.'],
+    ['daphne',`${H}! Sonunda geldin! Velma ile Shaggy de geldi mi?`],
+    ['su','Dışarıdalar. Shaggy “atıştırmalık nöbetinde”.'],
+    ['daphne','Tipik Shaggy... Neyse, başımız büyük dertte!'],
+    ['scooby','Ruh-roh! Ruh-roh!'],
+    ['daphne','Thames’in Hayalet Kaptanı bu gece takvimden bir yaprak kopardı...'],
+    ['ghost','HUA-HA-HAAA! 14 Kasım artık benim! Yaprağını parça parça ettim, anılarınızın arasına sakladım!'],
+    ['daphne',`Kopardığı yaprak... senin doğum günün, ${H}!`],
+    ['scooby','Roğum rünün... rayıp mı?!'],
+    ['daphne',`Üstelik ${CN.luka}, ${CN.joker} ve ${CN.simba} de ortadan kayboldu!`],
+    ['su','Kimse benim doğum günümü ve kedilerimi çalamaz!'],
+    ['daphne','İşte bu! Gitmek istediğin yere dokunman yeterli. Üstünde sarı ünlem olan şeylere dokun.'],
+    ['daphne','İlk iz nehir kenarındaki kalpli duvarda ama orası zifiri karanlık. Önce bir fener bul.'],
+    ['scooby','Rooby-Rooby-Roo!'],
+  ]);
+  S.metDaphne=true; save(); renderHud(); W.busy=false }
 function startWorld(){ show('world'); W.running=true; W.last=0; resize(); W.snap=true; renderInv(); requestAnimationFrame(loop) }
 async function begin(saved){
   S = saved ? {...freshState(), ...saved} : freshState();
@@ -1845,25 +1950,10 @@ async function begin(saved){
   A = AREAS[S.area](); resetTrail(); startWorld();
   if(S.area==='river' && !S.done.ch1 && has('flash')) return runChapter('ch1');
   if(S.area==='deck' && !S.done.ch3) return runChapter('ch3');
-  if(!S.intro){
-    W.busy=true; await sleep(600);
-    await talk([
-      ['narr','Londra, 13 Kasım gecesi. Saat gece yarısına yaklaşıyor...'],
-      ['narr','Borough’daki Dover Castle pub’ında, köşede tanıdık bir yüz bekliyor.'],
-      ['daphne',`${H}! Sonunda geldin! Başımız büyük dertte!`],
-      ['scooby','Ruh-roh! Ruh-roh!'],
-      ['daphne','Thames’in Hayalet Kaptanı bu gece takvimden bir yaprak kopardı...'],
-      ['ghost','HUA-HA-HAAA! 14 Kasım artık benim! Yaprağını parça parça ettim, anılarınızın arasına sakladım!'],
-      ['daphne',`Kopardığı yaprak... senin doğum günün, ${H}!`],
-      ['scooby','Roğum rünün... rayıp mı?!'],
-      ['daphne',`Üstelik ${CN.luka}, ${CN.joker} ve ${CN.simba} de ortadan kayboldu!`],
-      ['su','Kimse benim doğum günümü ve kedilerimi çalamaz!'],
-      ['daphne','İşte bu! Scooby seninle gelecek. Gitmek istediğin yere dokunman yeterli.'],
-      ['daphne','Üstünde sarı ünlem olan şeylere dokun. İlk iz nehir kenarındaki kalpli duvarda ama orası zifiri karanlık. Önce bir fener bul.'],
-      ['scooby','Rooby-Rooby-Roo!'],
-    ]);
-    S.intro=true; S.fol=['scooby']; resetTrail(); renderInv(); save(); W.busy=false;
-  }
+  if(saved && saved.intro && saved.metDaphne===undefined){ S.metDaphne=true; save() }
+  if(!S.intro){ if(S.area==='street') await streetIntro(); else { S.intro=true; S.metDaphne=true; save() } }
+  else if(S.area==='pub' && !S.metDaphne) await pubIntro();
+
 }
 
 /* =====================================================================
@@ -2144,7 +2234,8 @@ if(/dev/.test(location.search)){
   const back=()=>{ startWorld() };
   const G=[
     ['BÖLÜMLER',[
-      ['Başlangıç (Pub)',()=>goArea('pub',[6.5,4.5])],
+      ['Başlangıç (Sokak)',()=>{ store.clear(); begin(null) }],
+      ['Pub (Daphne)',()=>{ S.intro=true; S.fol=['scooby']; goArea('pub',[6.5,4.5]) }],
       ['1 · Fener avı',()=>{ addItem('flash'); goArea('river',[10.5,2.5]) }],
       ['2 · Balon sınavı',()=>runChapter('ch2')],
       ['3 · Kovalamaca',async()=>{ early(); addFollower('joker'); await goArea('deck',[5.5,5.5]); startChase() }],
